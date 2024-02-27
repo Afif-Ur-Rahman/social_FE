@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import "./App.css";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";

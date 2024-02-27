@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import Alerts from "./Alerts";
 import "../App.css";
-import "bootstrap/dist/css/bootstrap.min.css";
 import Loader from "./Loader";
 import mongoose from "mongoose";
 import { ReactComponent as EditIcon } from "./Edit_Icon.svg";
@@ -11,35 +10,39 @@ import { useNavigate } from "react-router-dom";
 
 function UserData() {
   const BASE_URL = "http://localhost:5000";
-  const db = "mongodb://localhost:27017";
-  const [users, setUsers] = useState([]);
+  const db = "mongodb://localhost:27017/Social_App";
+  const [posts, setPosts] = useState([]);
   const [alert, setAlert] = useState(null);
   const [newId, setNewId] = useState(null);
   const [button, setButton] = useState(true);
   const [del, setDel] = useState(false);
   const [loader, setLoader] = useState(false);
-  const [addData, setAddData] = useState(false);
-  const [postData, setPostData] = useState("");
-  const [userData, setUserData] = useState({
+  const [addPost, setAddPost] = useState(false);
+  const [postData, setPostData] = useState({
+    heading: "",
+    author: localStorage.getItem("User Name"),
+    content: "",
+  });
+  const [data, setData] = useState({
     page: 1,
-    dataCount: 5,
+    postCount: 6,
     totalPages: 0,
   });
   const navigate = useNavigate();
 
   useEffect(() => {
     GetUsers();
-  }, [userData.dataCount]);
+  }, [data.postCount]);
 
   const handlePaginationClick = async (page) => {
     const userId = localStorage.getItem("User Id");
-    if (userData.page === page) {
+    if (data.page === page) {
       return;
     }
 
     try {
       setLoader(true);
-      const API_LINK = `${BASE_URL}/userdata?page=${page}&dataCount=${userData.dataCount}`;
+      const API_LINK = `${BASE_URL}/userdata?page=${page}&postCount=${data.postCount}`;
       const token = localStorage.getItem("token");
       const response = await fetch(API_LINK, {
         method: "GET",
@@ -50,8 +53,8 @@ function UserData() {
         },
       });
       const result = await response.json();
-      setUsers(result.users);
-      setUserData({ ...userData, page: page, totalPages: result.totalPages });
+      setPosts(result.users);
+      setData({ ...data, page: page, totalPages: result.totalPages });
       setLoader(false);
     } catch (error) {
       console.error(`Error Fetching the data from ${db}: ${error}`);
@@ -59,11 +62,11 @@ function UserData() {
   };
 
   const handleInputChange = (e) => {
-    setPostData(e.target.value);
+    setPostData({ ...postData, [e.target.id]: e.target.value });
   };
 
   const handleAddData = () => {
-    setAddData(true);
+    setAddPost(true);
   };
 
   // Alert
@@ -81,7 +84,7 @@ function UserData() {
   const GetUsers = async () => {
     try {
       setLoader(true);
-      const API_LINK = `${BASE_URL}/userdata?page=${userData.page}&dataCount=${userData.dataCount}`;
+      const API_LINK = `${BASE_URL}/userdata?page=${data.page}&postCount=${data.postCount}`;
       const token = localStorage.getItem("token");
       const id = localStorage.getItem("User Id");
       const response = await fetch(API_LINK, {
@@ -93,8 +96,8 @@ function UserData() {
         },
       });
       const result = await response.json();
-      setUsers(result.users);
-      setUserData({ ...userData, totalPages: result.totalPages });
+      setPosts(result.users);
+      setData({ ...data, totalPages: result.totalPages });
     } catch (error) {
       console.error(`Error Fetching the data from ${db}: ${error}`);
     } finally {
@@ -103,19 +106,21 @@ function UserData() {
   };
 
   // Submit Request
-  const PostUsers = async (e) => {
+  const publishPost = async (e) => {
     setLoader(true);
     e.preventDefault();
 
     const payload = {
       _id: new mongoose.Types.ObjectId(),
       id: localStorage.getItem("User Id"),
-      post: postData,
+      heading: postData.heading,
+      author: postData.author,
+      content: postData.content,
     };
 
-    setUsers((prevUsers) => [
+    setPosts((prevUsers) => [
       payload,
-      ...prevUsers.slice(0, userData.dataCount - 1),
+      ...prevUsers.slice(0, data.postCount - 1),
     ]);
 
     let API_LINK = `${BASE_URL}/submit`;
@@ -129,43 +134,43 @@ function UserData() {
         body: JSON.stringify(payload),
       });
       showAlert(`Saved Successfully`, "success");
-      setPostData("");
+      setPostData({ heading: "", content: "" });
       setLoader(false);
-      setAddData(false);
+      setAddPost(false);
     } catch (error) {
       console.error(error);
     }
   };
 
   // Delete All Request
-  const DeleteAllUsers = async (id) => {
-    setLoader(true);
-    setUsers([]);
-    const API_LINK = `${BASE_URL}/deleteAll`;
-    try {
-      const response = await fetch(API_LINK, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id }),
-      });
-      const result = await response.json();
-      setUsers([]);
-      setDel(false);
-      setNewId(null);
-      setPostData("");
-      setButton(true);
-      showAlert(
-        `Deleted ${result.deletedCount} Entries Successfully`,
-        "success"
-      );
-    } catch (error) {
-      console.error(`Error deleting the data from ${db}: ${error}`);
-    } finally {
-      setLoader(false);
-    }
-  };
+  // const DeleteAllUsers = async (id) => {
+  //   setLoader(true);
+  //   setPosts([]);
+  //   const API_LINK = `${BASE_URL}/deleteAll`;
+  //   try {
+  //     const response = await fetch(API_LINK, {
+  //       method: "DELETE",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ id }),
+  //     });
+  //     const result = await response.json();
+  //     setPosts([]);
+  //     setDel(false);
+  //     setNewId(null);
+  //     setPostData({ heading: "", content: "" });
+  //     setButton(true);
+  //     showAlert(
+  //       `Deleted ${result.deletedCount} Entries Successfully`,
+  //       "success"
+  //     );
+  //   } catch (error) {
+  //     console.error(`Error deleting the data from ${db}: ${error}`);
+  //   } finally {
+  //     setLoader(false);
+  //   }
+  // };
 
   // Delete One Request
   const DeleteOneUser = async (id) => {
@@ -180,7 +185,7 @@ function UserData() {
         body: JSON.stringify({ id }),
       });
       setDel(false);
-      setPostData("");
+      setPostData({ heading: "", content: "" });
       setButton(true);
       setNewId(null);
       showAlert(`Deleted Successfully`, "success");
@@ -194,10 +199,10 @@ function UserData() {
   // Set Data to From Request
 
   const handleEditClick = (id) => {
-    setAddData(true);
-    const userToEdit = users.find((user) => user._id === id);
+    setAddPost(true);
+    const postToEdit = posts.find((user) => user._id === id);
     setPostData({
-      post: userToEdit.post,
+      post: postToEdit.post,
     });
     setNewId(id);
     setButton(false);
@@ -205,7 +210,7 @@ function UserData() {
   };
 
   // Update Request
-  const updateUser = async (e) => {
+  const updatePost = async (e) => {
     e.preventDefault();
     setLoader(true);
 
@@ -223,11 +228,11 @@ function UserData() {
         }),
       });
       showAlert("Updated Successfully", "success");
-      setPostData("");
+      setPostData({ heading: "", content: "" });
       setNewId(null);
       setButton(true);
       setLoader(false);
-      setAddData(false);
+      setAddPost(false);
     } catch (error) {
       console.error(`Error updating the data from ${db}: ${error}`);
     }
@@ -236,7 +241,7 @@ function UserData() {
   return (
     <>
       <Alerts alert={alert} />
-      {addData && (
+      {addPost && (
         <div
           className="data d-flex flex-column align-items-center justify-content-center"
           autoComplete="off"
@@ -247,39 +252,69 @@ function UserData() {
               method="POST"
               encType="multipart/form-data"
               style={{
-                margin: "auto",
                 padding: "10px",
-                height: "fit-content",
+                margin: "auto 10px",
                 width: "auto",
+                height: "fit-content",
                 borderRadius: "10px",
                 border: "1px solid gray",
                 backgroundColor: "whitesmoke",
               }}
             >
+              {loader && <Loader />}
               <h5 className="text-center">Create Post</h5>
-              <textarea
-                name="post"
-                id="post"
-                cols="10"
-                rows="10"
-                onChange={() => handleInputChange}
-              ></textarea>
+              <div className="form-group">
+                <label htmlFor="heading">Heading:</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="heading"
+                  aria-describedby="heading"
+                  autoComplete="off"
+                  value={postData.heading}
+                  onChange={handleInputChange}
+                />
+                <br />
+
+                <label htmlFor="author">Author:</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="author"
+                  autoComplete="off"
+                  value={localStorage.getItem("User Name")}
+                  disabled
+                />
+                <br />
+
+                <label htmlFor="content">Content:</label>
+                <textarea
+                  type="text"
+                  className="form-control"
+                  id="content"
+                  autoComplete="off"
+                  value={postData.content}
+                  onChange={handleInputChange}
+                />
+                <br />
+              </div>
+
               <div>
                 <button
                   disabled={loader}
                   type="submit"
                   className="btn btn-success mx-1"
-                  onClick={button ? PostUsers : updateUser}
+                  onClick={button ? publishPost : updatePost}
                 >
-                  {button ? "Save" : "Update"}
+                  {button ? "Publish" : "Discard"}
                 </button>
                 <button
                   type="submit"
                   className="btn btn-danger mx-1"
                   onClick={() => {
-                    setPostData("");
+                    setPostData({ heading: "", content: "" });
                     setButton(true);
-                    setAddData(false);
+                    setAddPost(false);
                   }}
                 >
                   Cancel
@@ -298,7 +333,7 @@ function UserData() {
         </div>
 
         <div>
-          <h2 style={{ textAlign: "center" }}>User Info</h2>
+          <h2 style={{ textAlign: "center" }}>User's Posts</h2>
         </div>
 
         <div className="logout">
@@ -310,15 +345,15 @@ function UserData() {
               justifyContent: "center",
             }}
           >
-            <label htmlFor="name">Number of Enteries: </label>
+            <label htmlFor="name">Number of Posts: </label>
             <input
               type="number"
               className="form-control"
               autoComplete="off"
               style={{ maxWidth: "20%" }}
-              value={userData.dataCount}
+              value={data.postCount}
               onChange={(e) =>
-                setUserData({ ...userData, dataCount: e.target.value, page: 1 })
+                setData({ ...data, postCount: e.target.value, page: 1 })
               }
             />
           </div>
@@ -330,7 +365,7 @@ function UserData() {
                 handleAddData();
               }}
             >
-              Add Data
+              Create Post
             </button>
             <button
               className="btn btn-primary mx-1"
@@ -346,114 +381,83 @@ function UserData() {
           </div>
         </div>
 
-        <div className="container my-2 tablescroll">
-          <table className="table table-striped">
-            <thead style={{ borderBottom: "1px solid black" }}>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Username</th>
-                <th scope="col">Email</th>
-                <th scope="col">Password</th>
-                <th></th>
-                <th className="text-right">
-                  <span
-                    onClick={() => setDel(true)}
-                    style={{ cursor: "pointer" }}
+        <div className="container">
+          {posts?.map((item) => (
+            <div className="card" style={{ width: "18rem" }}>
+              <div className="card-body">
+                <div>
+                  <h5 className="card-title">{item.heading}</h5>
+                  <div>
+                    <span
+                      onClick={() => handleEditClick(item._id)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {" "}
+                      <EditIcon />{" "}
+                    </span>
+                    <span
+                      onClick={() => {
+                        setDel(true);
+                        setNewId(item._id);
+                      }}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {" "}
+                      <DeleteIcon />{" "}
+                    </span>
+                  </div>
+                  <div
+                    className="delOne"
+                    style={{
+                      display: del ? "block" : "none",
+                    }}
                   >
-                    {" "}
-                    <DeleteIcon />{" "}
-                  </span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {users?.map((item, index) => {
-                return (
-                  <tr key={index}>
-                    <th scope="row">{index + 1}</th>
-                    <td>{item.name}</td>
-                    <td>
-                      <a href="mailto:">{item.email}</a>
-                    </td>
-                    <td>{item.password}</td>
-                    <td className="text-right">
-                      <span
-                        onClick={() => handleEditClick(item._id)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        {" "}
-                        <EditIcon />{" "}
-                      </span>
-                    </td>
-                    <td>
-                      <span
+                    Are you sure you want to delete?
+                    <div className="align-right">
+                      <button
+                        className="btn btn-success mt-2 mx-1"
                         onClick={() => {
-                          setDel(true);
-                          setNewId(item._id);
-                        }}
-                        style={{ cursor: "pointer" }}
-                      >
-                        {" "}
-                        <DeleteIcon />{" "}
-                      </span>
-                      <div
-                        className="delOne"
-                        style={{
-                          display: del ? "block" : "none",
+                          setDel(false);
+                          setNewId(null);
                         }}
                       >
-                        {newId
-                          ? "Are you sure you want to delete?"
-                          : "Are you sure you want to delete all data?"}
-                        <div className="align-right">
-                          <button
-                            className="btn btn-success mt-2 mx-1"
-                            onClick={() => {
-                              setDel(false);
-                              setNewId(null);
-                            }}
-                          >
-                            No
-                          </button>
-                          <button
-                            className="btn btn-danger mt-2 mx-1"
-                            onClick={() =>
-                              newId
-                                ? DeleteOneUser(newId)
-                                : DeleteAllUsers(
-                                    localStorage.getItem("User Id")
-                                  )
-                            }
-                          >
-                            Yes
-                          </button>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                        No
+                      </button>
+                      <button
+                        className="btn btn-danger mt-2 mx-1"
+                        onClick={() =>
+                          DeleteOneUser(newId)
+                        }
+                      >
+                        Yes
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <p className="card-text">
+                  {item.content}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
 
         <div className="pagination d-block" style={{ textAlign: "center" }}>
-          {Array.from(
-            { length: userData.totalPages },
-            (_, index) => index + 1
-          ).map((page) => (
-            <button
-              key={page}
-              className={`btn ${
-                page === userData.page ? "btn-primary" : "btn-light"
-              } mx-1 my-1`}
-              onClick={() => handlePaginationClick(page)}
-            >
-              {page}
-            </button>
-          ))}
+          {Array.from({ length: data.totalPages }, (_, index) => index + 1).map(
+            (page) => (
+              <button
+                key={page}
+                className={`btn ${
+                  page === data.page ? "btn-primary" : "btn-light"
+                } mx-1 my-1`}
+                onClick={() => handlePaginationClick(page)}
+              >
+                {page}
+              </button>
+            )
+          )}
         </div>
-        <div className="download">
+        {/* <div className="download">
           <h6> Code Download Links 👇👇</h6>
           <div>
             🖥️ <a href="https://github.com/Afif-Ur-Rahman/BE">Backend Code</a>{" "}
@@ -463,7 +467,7 @@ function UserData() {
             🖥️ <a href="https://github.com/Afif-Ur-Rahman/FE">Frontend Code</a>{" "}
             🖥️
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   );

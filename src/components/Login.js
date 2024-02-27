@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "../App.css";
-import "bootstrap/dist/css/bootstrap.min.css";
 import Loader from "./Loader";
 import { Link, useNavigate } from "react-router-dom";
 
