@@ -24,6 +24,48 @@ body {
   position: absolute;
   top: 0%;
   left: 40%;
+  z-index: 1;
+}
+
+.posts {
+  display: flex;
+  align-items: center;
+  max-width: 200px;
+  max-height: 300px;
+  flex-direction: column;
+}
+
+.post-head {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.edde {
+  display: flex;
+  justify-content: space-between;
+  width: 25%;
+}
+
+.allPosts {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin: 0 auto;
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.card {
+  max-width: max-content;
+  margin: 0.5rem;
+
 }
 
 .download {
@@ -32,7 +74,6 @@ body {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  /* background-color: rgba(273, 273, 273, 0.3); */
 }
 
 .download a {
@@ -41,6 +82,7 @@ body {
   background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
   display: inline;
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   background-size: 200% auto;
   animation: gradientAnimation 1s linear infinite;
@@ -118,6 +160,7 @@ body {
   position: absolute;
   top: 30%;
   right: 40%;
+  z-index: 1;
 }
 
 .tablescroll {

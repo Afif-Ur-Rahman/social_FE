@@ -19,7 +19,7 @@ function UserData() {
   const [loader, setLoader] = useState(false);
   const [addPost, setAddPost] = useState(false);
   const [postData, setPostData] = useState({
-    heading: "",
+    title: "",
     author: localStorage.getItem("User Name"),
     content: "",
   });
@@ -113,7 +113,7 @@ function UserData() {
     const payload = {
       _id: new mongoose.Types.ObjectId(),
       id: localStorage.getItem("User Id"),
-      heading: postData.heading,
+      title: postData.title,
       author: postData.author,
       content: postData.content,
     };
@@ -134,7 +134,7 @@ function UserData() {
         body: JSON.stringify(payload),
       });
       showAlert(`Saved Successfully`, "success");
-      setPostData({ heading: "", content: "" });
+      setPostData({ title: "", content: "" });
       setLoader(false);
       setAddPost(false);
     } catch (error) {
@@ -159,7 +159,7 @@ function UserData() {
   //     setPosts([]);
   //     setDel(false);
   //     setNewId(null);
-  //     setPostData({ heading: "", content: "" });
+  //     setPostData({ title: "", content: "" });
   //     setButton(true);
   //     showAlert(
   //       `Deleted ${result.deletedCount} Entries Successfully`,
@@ -185,7 +185,7 @@ function UserData() {
         body: JSON.stringify({ id }),
       });
       setDel(false);
-      setPostData({ heading: "", content: "" });
+      setPostData({ title: "", content: "" });
       setButton(true);
       setNewId(null);
       showAlert(`Deleted Successfully`, "success");
@@ -200,9 +200,11 @@ function UserData() {
 
   const handleEditClick = (id) => {
     setAddPost(true);
-    const postToEdit = posts.find((user) => user._id === id);
+    const postToEdit = posts.find((posts) => posts._id === id);
     setPostData({
-      post: postToEdit.post,
+      title: postToEdit.title,
+      author: postToEdit.author,
+      content: postToEdit.content,
     });
     setNewId(id);
     setButton(false);
@@ -214,6 +216,14 @@ function UserData() {
     e.preventDefault();
     setLoader(true);
 
+    // Update Post on Locally
+    const updatedPost = posts.map((post) =>
+      post._id === newId
+        ? { ...post, title: postData.title, content: postData.content }
+        : post
+    );
+    setPosts(updatedPost)
+
     // Updating Data in Database
     const API_LINK = `${BASE_URL}/update`;
     try {
@@ -224,11 +234,13 @@ function UserData() {
         },
         body: JSON.stringify({
           id: newId,
-          post: postData,
+          title: postData.title,
+          author: localStorage.getItem("User Name"),
+          content: postData.content,
         }),
       });
       showAlert("Updated Successfully", "success");
-      setPostData({ heading: "", content: "" });
+      setPostData({ title: "", content: "" });
       setNewId(null);
       setButton(true);
       setLoader(false);
@@ -261,17 +273,16 @@ function UserData() {
                 backgroundColor: "whitesmoke",
               }}
             >
-              {loader && <Loader />}
               <h5 className="text-center">Create Post</h5>
               <div className="form-group">
-                <label htmlFor="heading">Heading:</label>
+                <label htmlFor="title">Title:</label>
                 <input
                   type="text"
                   className="form-control"
-                  id="heading"
-                  aria-describedby="heading"
+                  id="title"
+                  aria-describedby="title"
                   autoComplete="off"
-                  value={postData.heading}
+                  value={postData.title}
                   onChange={handleInputChange}
                 />
                 <br />
@@ -306,13 +317,13 @@ function UserData() {
                   className="btn btn-success mx-1"
                   onClick={button ? publishPost : updatePost}
                 >
-                  {button ? "Publish" : "Discard"}
+                  {button ? "Publish" : "Update"}
                 </button>
                 <button
                   type="submit"
                   className="btn btn-danger mx-1"
                   onClick={() => {
-                    setPostData({ heading: "", content: "" });
+                    setPostData({ title: "", content: "" });
                     setButton(true);
                     setAddPost(false);
                   }}
@@ -382,64 +393,75 @@ function UserData() {
         </div>
 
         <div className="container">
-          {posts?.map((item) => (
-            <div className="card" style={{ width: "18rem" }}>
-              <div className="card-body">
-                <div>
-                  <h5 className="card-title">{item.heading}</h5>
-                  <div>
-                    <span
-                      onClick={() => handleEditClick(item._id)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      {" "}
-                      <EditIcon />{" "}
-                    </span>
-                    <span
-                      onClick={() => {
-                        setDel(true);
-                        setNewId(item._id);
-                      }}
-                      style={{ cursor: "pointer" }}
-                    >
-                      {" "}
-                      <DeleteIcon />{" "}
-                    </span>
-                  </div>
+          <div className="allPosts col-md-4">
+            {posts?.map((item, index) => (
+              <div className="card" key={index}>
+                <div className="card-body posts">
                   <div
-                    className="delOne"
-                    style={{
-                      display: del ? "block" : "none",
-                    }}
+                    className="badge bg-primary"
+                    style={{ fontSize: "14px" }}
                   >
-                    Are you sure you want to delete?
-                    <div className="align-right">
-                      <button
-                        className="btn btn-success mt-2 mx-1"
+                    {item.author}
+                  </div>
+                  <div className="post-head">
+                    <h6 className="card-title">{item.title}</h6>
+                    <div className="edde">
+                      <span
+                        onClick={() => handleEditClick(item._id)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        {" "}
+                        <EditIcon />{" "}
+                      </span>
+                      <span
                         onClick={() => {
-                          setDel(false);
-                          setNewId(null);
+                          setDel(true);
+                          setNewId(item._id);
                         }}
+                        style={{ cursor: "pointer" }}
                       >
-                        No
-                      </button>
-                      <button
-                        className="btn btn-danger mt-2 mx-1"
-                        onClick={() =>
-                          DeleteOneUser(newId)
-                        }
-                      >
-                        Yes
-                      </button>
+                        {" "}
+                        <DeleteIcon />{" "}
+                      </span>
                     </div>
                   </div>
+                  <p
+                    style={{
+                      overflow: "scroll",
+                    }}
+                    className="card-text"
+                  >
+                    {item.content}
+                  </p>
                 </div>
-                <p className="card-text">
-                  {item.content}
-                </p>
               </div>
+            ))}
+          </div>
+          <div
+            className="delOne"
+            style={{
+              display: del ? "block" : "none",
+            }}
+          >
+            Are you sure you want to delete?
+            <div className="align-right">
+              <button
+                className="btn btn-success mt-2 mx-1"
+                onClick={() => {
+                  setDel(false);
+                  setNewId(null);
+                }}
+              >
+                No
+              </button>
+              <button
+                className="btn btn-danger mt-2 mx-1"
+                onClick={() => DeleteOneUser(newId)}
+              >
+                Yes
+              </button>
             </div>
-          ))}
+          </div>
         </div>
 
         <div className="pagination d-block" style={{ textAlign: "center" }}>
