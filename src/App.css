@@ -65,7 +65,15 @@ body {
 .card {
   max-width: max-content;
   margin: 0.5rem;
+}
 
+.card-text {
+  overflow: hidden;
+  height: 200px;
+}
+
+.card-text:hover {
+  overflow: scroll;
 }
 
 .download {

@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 function UserData() {
   const BASE_URL = "http://localhost:5000";
   const db = "mongodb://localhost:27017/Social_App";
-  const [userData, setUserData] = useState({})
+  const [userData, setUserData] = useState({});
   const [posts, setPosts] = useState([]);
   const [alert, setAlert] = useState(null);
   const [newId, setNewId] = useState(null);
@@ -142,36 +142,6 @@ function UserData() {
     }
   };
 
-  // Delete All Request
-  // const DeleteAllUsers = async (id) => {
-  //   setLoader(true);
-  //   setPosts([]);
-  //   const API_LINK = `${BASE_URL}/deleteAll`;
-  //   try {
-  //     const response = await fetch(API_LINK, {
-  //       method: "DELETE",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ id }),
-  //     });
-  //     const result = await response.json();
-  //     setPosts([]);
-  //     setDel(false);
-  //     setNewId(null);
-  //     setPostData({ title: "", content: "" });
-  //     setButton(true);
-  //     showAlert(
-  //       `Deleted ${result.deletedCount} Entries Successfully`,
-  //       "success"
-  //     );
-  //   } catch (error) {
-  //     console.error(`Error deleting the data from ${db}: ${error}`);
-  //   } finally {
-  //     setLoader(false);
-  //   }
-  // };
-
   // Delete One Request
   const DeleteOneUser = async (id) => {
     setLoader(true);
@@ -197,7 +167,6 @@ function UserData() {
   };
 
   // Set Data to From Request
-
   const handleEditClick = (id) => {
     setAddPost(true);
     const postToEdit = posts.find((posts) => posts._id === id);
@@ -219,7 +188,12 @@ function UserData() {
     // Update Post Locally
     const updatedPost = posts.map((post) =>
       post._id === newId
-        ? { ...post, title: postData.title, author: postData.author, content: postData.content }
+        ? {
+            ...post,
+            title: postData.title,
+            author: postData.author,
+            content: postData.content,
+          }
         : post
     );
     setPosts(updatedPost);
@@ -273,7 +247,9 @@ function UserData() {
                 backgroundColor: "whitesmoke",
               }}
             >
-              <h5 className="text-center">Create Post</h5>
+              <h5 className="text-center">
+                {button ? "Create" : "Update"} Post
+              </h5>
               <div className="form-group">
                 <label htmlFor="title">Title:</label>
                 <input
@@ -404,7 +380,9 @@ function UserData() {
                     {item.author}
                   </div>
                   <div className="post-head">
-                    <h6 className="card-title">{item.title}</h6>
+                    <h6 className="card-title">
+                      {item.title ? item.title : "This is Heading"}
+                    </h6>
                     <div className="edde">
                       <span
                         onClick={() => handleEditClick(item._id)}
@@ -425,14 +403,15 @@ function UserData() {
                       </span>
                     </div>
                   </div>
-                  <p
-                    style={{
-                      overflow: "scroll",
-                    }}
-                    className="card-text"
-                  >
-                    {item.content}
+                  <p className="card-text">
+                    {item.content ? item.content : "No Content to Display"}
                   </p>
+                  <div>
+                    <button className="btn btn-primary mt-2 mx-1" style={{fontSize: "10px"}} >Like</button>
+                    <button className="btn btn-success mt-2 mx-1" style={{fontSize: "10px"}} >
+                      Comment
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
