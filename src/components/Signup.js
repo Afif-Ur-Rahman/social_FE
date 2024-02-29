@@ -1,11 +1,9 @@
-import React, { useState, useContext } from "react";
-import socialContext from "../context/socialContext";
+import React, { useState } from "react";
 import "../App.css";
 import Loader from "./Loader";
 import { Link, useNavigate } from "react-router-dom";
 
 function Signup() {
-  const user = useContext(socialContext)
   const navigate = useNavigate();
   const BASE_URL = "http://localhost:5000";
   const [loader, setLoader] = useState(false);
@@ -79,7 +77,6 @@ function Signup() {
         const data = await result.json();
         if (data.success) {
           localStorage.setItem("token", data.token);
-          user.setUser({name: formData.name,token: data.token, id: data.id,})  
           navigate("/userdata");
         } else {
           console.error(data.message);

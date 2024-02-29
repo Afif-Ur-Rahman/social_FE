@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import Alerts from "./Alerts";
 import "../App.css";
 import Loader from "./Loader";
@@ -7,12 +7,11 @@ import mongoose from "mongoose";
 import { ReactComponent as EditIcon } from "./Edit_Icon.svg";
 import { ReactComponent as DeleteIcon } from "./Delete_Icon.svg";
 import { useNavigate } from "react-router-dom";
-import socialContext from "../context/socialContext";
 
 function UserData() {
   const BASE_URL = "http://localhost:5000";
   const db = "mongodb://localhost:27017/Social_App";
-  const user = useContext(socialContext);
+  const [userData, setUserData] = useState({})
   const [posts, setPosts] = useState([]);
   const [alert, setAlert] = useState(null);
   const [newId, setNewId] = useState(null);
@@ -22,7 +21,7 @@ function UserData() {
   const [addPost, setAddPost] = useState(false);
   const [postData, setPostData] = useState({
     title: "",
-    author: user.user.name,
+    author: userData.name,
     content: "",
   });
   const [data, setData] = useState({
@@ -37,7 +36,7 @@ function UserData() {
   }, [data.postCount]);
 
   const handlePaginationClick = async (page) => {
-    const userId = user.user.id;
+    const userId = userData._id;
     if (data.page === page) {
       return;
     }
@@ -88,17 +87,16 @@ function UserData() {
       setLoader(true);
       const API_LINK = `${BASE_URL}/userdata?page=${data.page}&postCount=${data.postCount}`;
       const token = localStorage.getItem("token");
-      const id = user.user.id;
       const response = await fetch(API_LINK, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: token,
-          "User-Id": id,
         },
       });
       const result = await response.json();
-      setPosts(result.users);
+      setPosts(result.posts);
+      setUserData(result.user);
       setData({ ...data, totalPages: result.totalPages });
     } catch (error) {
       console.error(`Error Fetching the data from ${db}: ${error}`);
@@ -114,9 +112,9 @@ function UserData() {
 
     const payload = {
       _id: new mongoose.Types.ObjectId(),
-      id: user.user.id,
+      id: userData._id,
       title: postData.title,
-      author: postData.author,
+      author: postData.name,
       content: postData.content,
     };
 
@@ -218,13 +216,13 @@ function UserData() {
     e.preventDefault();
     setLoader(true);
 
-    // Update Post on Locally
+    // Update Post Locally
     const updatedPost = posts.map((post) =>
       post._id === newId
-        ? { ...post, title: postData.title, content: postData.content }
+        ? { ...post, title: postData.title, author: postData.author, content: postData.content }
         : post
     );
-    setPosts(updatedPost)
+    setPosts(updatedPost);
 
     // Updating Data in Database
     const API_LINK = `${BASE_URL}/update`;
@@ -237,7 +235,7 @@ function UserData() {
         body: JSON.stringify({
           id: newId,
           title: postData.title,
-          author: user.user.name,
+          author: userData.name,
           content: postData.content,
         }),
       });
@@ -295,7 +293,7 @@ function UserData() {
                   className="form-control"
                   id="author"
                   autoComplete="off"
-                  value={user.user.name}
+                  value={userData.name}
                   disabled
                 />
                 <br />
@@ -342,7 +340,7 @@ function UserData() {
         {loader && <Loader />}
         <div>
           <span style={{ fontWeight: "bold" }}>Logged In as: </span>{" "}
-          <span>{user.user.name}</span>
+          <span>{userData.name}</span>
         </div>
 
         <div>
@@ -481,7 +479,7 @@ function UserData() {
             )
           )}
         </div>
-        {/* <div className="download">
+        <div className="download">
           <h6> Code Download Links 👇👇</h6>
           <div>
             🖥️ <a href="https://github.com/Afif-Ur-Rahman/BE">Backend Code</a>{" "}
@@ -491,7 +489,7 @@ function UserData() {
             🖥️ <a href="https://github.com/Afif-Ur-Rahman/FE">Frontend Code</a>{" "}
             🖥️
           </div>
-        </div> */}
+        </div>
       </div>
     </>
   );
