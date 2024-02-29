@@ -5,13 +5,16 @@ import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import UserData from "./components/User_Data";
+import SocialState from "./context/SocialState";
 
 function App() {
   return (
     <>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <SocialState>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </SocialState>
     </>
   );
 }
@@ -22,7 +25,7 @@ function AppRoutes() {
   const [isToken, setIsToken] = useState(!!token);
 
   useEffect(() => {
-      setIsToken( !!token === true? true : false);
+    setIsToken(!!token === true ? true : false);
   }, [token]);
 
   useEffect(() => {

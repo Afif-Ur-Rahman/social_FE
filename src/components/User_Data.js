@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Alerts from "./Alerts";
 import "../App.css";
 import Loader from "./Loader";
@@ -7,10 +7,12 @@ import mongoose from "mongoose";
 import { ReactComponent as EditIcon } from "./Edit_Icon.svg";
 import { ReactComponent as DeleteIcon } from "./Delete_Icon.svg";
 import { useNavigate } from "react-router-dom";
+import socialContext from "../context/socialContext";
 
 function UserData() {
   const BASE_URL = "http://localhost:5000";
   const db = "mongodb://localhost:27017/Social_App";
+  const user = useContext(socialContext);
   const [posts, setPosts] = useState([]);
   const [alert, setAlert] = useState(null);
   const [newId, setNewId] = useState(null);
@@ -20,7 +22,7 @@ function UserData() {
   const [addPost, setAddPost] = useState(false);
   const [postData, setPostData] = useState({
     title: "",
-    author: localStorage.getItem("User Name"),
+    author: user.user.name,
     content: "",
   });
   const [data, setData] = useState({
@@ -35,7 +37,7 @@ function UserData() {
   }, [data.postCount]);
 
   const handlePaginationClick = async (page) => {
-    const userId = localStorage.getItem("User Id");
+    const userId = user.user.id;
     if (data.page === page) {
       return;
     }
@@ -86,7 +88,7 @@ function UserData() {
       setLoader(true);
       const API_LINK = `${BASE_URL}/userdata?page=${data.page}&postCount=${data.postCount}`;
       const token = localStorage.getItem("token");
-      const id = localStorage.getItem("User Id");
+      const id = user.user.id;
       const response = await fetch(API_LINK, {
         method: "GET",
         headers: {
@@ -112,7 +114,7 @@ function UserData() {
 
     const payload = {
       _id: new mongoose.Types.ObjectId(),
-      id: localStorage.getItem("User Id"),
+      id: user.user.id,
       title: postData.title,
       author: postData.author,
       content: postData.content,
@@ -235,7 +237,7 @@ function UserData() {
         body: JSON.stringify({
           id: newId,
           title: postData.title,
-          author: localStorage.getItem("User Name"),
+          author: user.user.name,
           content: postData.content,
         }),
       });
@@ -293,7 +295,7 @@ function UserData() {
                   className="form-control"
                   id="author"
                   autoComplete="off"
-                  value={localStorage.getItem("User Name")}
+                  value={user.user.name}
                   disabled
                 />
                 <br />
@@ -340,7 +342,7 @@ function UserData() {
         {loader && <Loader />}
         <div>
           <span style={{ fontWeight: "bold" }}>Logged In as: </span>{" "}
-          <span>{localStorage.getItem("User Name")}</span>
+          <span>{user.user.name}</span>
         </div>
 
         <div>

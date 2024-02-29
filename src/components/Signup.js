@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import socialContext from "../context/socialContext";
 import "../App.css";
 import Loader from "./Loader";
 import { Link, useNavigate } from "react-router-dom";
 
 function Signup() {
+  const user = useContext(socialContext)
   const navigate = useNavigate();
   const BASE_URL = "http://localhost:5000";
   const [loader, setLoader] = useState(false);
@@ -77,8 +79,7 @@ function Signup() {
         const data = await result.json();
         if (data.success) {
           localStorage.setItem("token", data.token);
-          localStorage.setItem("User Name", formData.name);
-          localStorage.setItem("User Id", data.id);
+          user.setUser({name: formData.name,token: data.token, id: data.id,})  
           navigate("/userdata");
         } else {
           console.error(data.message);
@@ -112,7 +113,7 @@ function Signup() {
               border: "1px solid gray",
               backgroundColor: "rgba(255, 255, 255, 0.7)",
             }}
-          >
+          > 
             {loader && <Loader />}
             <h5 className="text-center">Sign Up</h5>
             <div className="form-group">

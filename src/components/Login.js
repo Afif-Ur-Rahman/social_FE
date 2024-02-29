@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import socialContext from "../context/socialContext";
 import "../App.css";
 import Loader from "./Loader";
 import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
+  const user = useContext(socialContext);
   const navigate = useNavigate();
   const BASE_URL = "http://localhost:5000";
   const [loader, setLoader] = useState(false);
@@ -75,8 +77,9 @@ function Login() {
         const data = await result.json();
         if (data.success) {
           localStorage.setItem("token", data.token);
-          localStorage.setItem("User Name", data.name);
-          localStorage.setItem("User Id", data.id);
+          // localStorage.setItem("User Name", data.name);
+          // localStorage.setItem("User Id", data.id);
+          user.setUser({ name: data.name, token: data.token, id: data.id });
           navigate("/userdata");
         } else {
           console.error(data.message);
