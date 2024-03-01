@@ -4,9 +4,11 @@ import Alerts from "./Alerts";
 import "../App.css";
 import Loader from "./Loader";
 import mongoose from "mongoose";
-import { ReactComponent as EditIcon } from "./Edit_Icon.svg";
-import { ReactComponent as DeleteIcon } from "./Delete_Icon.svg";
 import { useNavigate } from "react-router-dom";
+import Post from "./Post";
+import UserPost from "./User_Posts";
+import Feed from "./Feed";
+import CodeDownload from "./Code_Download";
 
 function UserData() {
   const BASE_URL = "http://localhost:5000";
@@ -19,9 +21,9 @@ function UserData() {
   const [del, setDel] = useState(false);
   const [loader, setLoader] = useState(false);
   const [addPost, setAddPost] = useState(false);
+  const [profile, setProfile] = useState(true);
   const [postData, setPostData] = useState({
     title: "",
-    author: userData.name,
     content: "",
   });
   const [data, setData] = useState({
@@ -32,7 +34,7 @@ function UserData() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    GetUsers();
+    GetPosts();
   }, [data.postCount]);
 
   const handlePaginationClick = async (page) => {
@@ -82,10 +84,34 @@ function UserData() {
   };
 
   // Get Request
-  const GetUsers = async () => {
+  const GetPosts = async () => {
     try {
       setLoader(true);
       const API_LINK = `${BASE_URL}/userdata?page=${data.page}&postCount=${data.postCount}`;
+      const token = localStorage.getItem("token");
+      const response = await fetch(API_LINK, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      });
+      const result = await response.json();
+      setPosts(result.posts);
+      setUserData(result.user);
+      setData({ ...data, totalPages: result.totalPages });
+    } catch (error) {
+      console.error(`Error Fetching the data from ${db}: ${error}`);
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  // Get All Request
+  const GetAllPosts = async () => {
+    try {
+      setLoader(true);
+      const API_LINK = `${BASE_URL}/newsfeed?page=${data.page}&postCount=${data.postCount}`;
       const token = localStorage.getItem("token");
       const response = await fetch(API_LINK, {
         method: "GET",
@@ -114,7 +140,7 @@ function UserData() {
       _id: new mongoose.Types.ObjectId(),
       id: userData._id,
       title: postData.title,
-      author: postData.name,
+      author: userData.name,
       content: postData.content,
     };
 
@@ -159,7 +185,7 @@ function UserData() {
       setButton(true);
       setNewId(null);
       showAlert(`Deleted Successfully`, "success");
-      await GetUsers();
+      await GetPosts();
       setLoader(false);
     } catch (error) {
       console.error(`Error deleting the data from ${db}: ${error}`);
@@ -228,88 +254,18 @@ function UserData() {
     <>
       <Alerts alert={alert} />
       {addPost && (
-        <div
-          className="data d-flex flex-column align-items-center justify-content-center"
-          autoComplete="off"
-        >
-          <div>
-            <form
-              className="container d-flex flex-column justify-content-center"
-              method="POST"
-              encType="multipart/form-data"
-              style={{
-                padding: "10px",
-                margin: "auto 10px",
-                width: "auto",
-                height: "fit-content",
-                borderRadius: "10px",
-                border: "1px solid gray",
-                backgroundColor: "whitesmoke",
-              }}
-            >
-              <h5 className="text-center">
-                {button ? "Create" : "Update"} Post
-              </h5>
-              <div className="form-group">
-                <label htmlFor="title">Title:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="title"
-                  aria-describedby="title"
-                  autoComplete="off"
-                  value={postData.title}
-                  onChange={handleInputChange}
-                />
-                <br />
-
-                <label htmlFor="author">Author:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="author"
-                  autoComplete="off"
-                  value={userData.name}
-                  disabled
-                />
-                <br />
-
-                <label htmlFor="content">Content:</label>
-                <textarea
-                  type="text"
-                  className="form-control"
-                  id="content"
-                  autoComplete="off"
-                  value={postData.content}
-                  onChange={handleInputChange}
-                />
-                <br />
-              </div>
-
-              <div>
-                <button
-                  disabled={loader}
-                  type="submit"
-                  className="btn btn-success mx-1"
-                  onClick={button ? publishPost : updatePost}
-                >
-                  {button ? "Publish" : "Update"}
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-danger mx-1"
-                  onClick={() => {
-                    setPostData({ title: "", content: "" });
-                    setButton(true);
-                    setAddPost(false);
-                  }}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <Post
+          button={button}
+          postData={postData}
+          handleInputChange={handleInputChange}
+          userData={userData}
+          publishPost={publishPost}
+          updatePost={updatePost}
+          setPostData={setPostData}
+          setButton={setButton}
+          setAddPost={setAddPost}
+          loader={loader}
+        />
       )}
 
       <div className="container main">
@@ -320,7 +276,8 @@ function UserData() {
         </div>
 
         <div>
-          <h2 style={{ textAlign: "center" }}>User's Posts</h2>
+          {profile && <h2 style={{ textAlign: "center" }}>User's Posts</h2>}
+          {!profile && <h2 style={{ textAlign: "center" }}>News Feed</h2>}
         </div>
 
         <div className="logout">
@@ -346,6 +303,28 @@ function UserData() {
           </div>
 
           <div className="my-1">
+            {profile && (
+              <button
+                className="btn btn-success mx-1"
+                onClick={() => {
+                  setProfile(false);
+                  GetAllPosts()
+                }}
+              >
+                News Feed
+              </button>
+            )}
+            {!profile && (
+              <button
+                className="btn btn-success mx-1"
+                onClick={() => {
+                  setProfile(true);
+                  GetPosts()
+                }}
+              >
+                Profile
+              </button>
+            )}
             <button
               className="btn btn-success mx-1"
               onClick={() => {
@@ -369,53 +348,32 @@ function UserData() {
         </div>
 
         <div className="container">
-          <div className="allPosts col-md-4">
-            {posts?.map((item, index) => (
-              <div className="card" key={index}>
-                <div className="card-body posts">
-                  <div
-                    className="badge bg-primary"
-                    style={{ fontSize: "14px" }}
-                  >
-                    {item.author}
-                  </div>
-                  <div className="post-head">
-                    <h6 className="card-title">
-                      {item.title ? item.title : "This is Heading"}
-                    </h6>
-                    <div className="edde">
-                      <span
-                        onClick={() => handleEditClick(item._id)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        {" "}
-                        <EditIcon />{" "}
-                      </span>
-                      <span
-                        onClick={() => {
-                          setDel(true);
-                          setNewId(item._id);
-                        }}
-                        style={{ cursor: "pointer" }}
-                      >
-                        {" "}
-                        <DeleteIcon />{" "}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="card-text">
-                    {item.content ? item.content : "No Content to Display"}
-                  </p>
-                  <div>
-                    <button className="btn btn-primary mt-2 mx-1" style={{fontSize: "10px"}} >Like</button>
-                    <button className="btn btn-success mt-2 mx-1" style={{fontSize: "10px"}} >
-                      Comment
-                    </button>
-                  </div>
+          {profile && (
+            <div className="allPosts col-md-4">
+              {posts?.map((item, index) => (
+                <div className="card" key={index}>
+                    <UserPost
+                      key={index}
+                      item={item}
+                      handleEditClick={handleEditClick}
+                      setDel={setDel}
+                      setNewId={setNewId}
+                    />
                 </div>
+              ))}
+            </div>
+          )}
+
+          {!profile && (
+            <div className="allPosts col-md-4">
+              {posts?.map((item, index) => (
+              <div className="card" key={index}>
+                <Feed item={item} />
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+
           <div
             className="delOne"
             style={{
@@ -458,17 +416,7 @@ function UserData() {
             )
           )}
         </div>
-        <div className="download">
-          <h6> Code Download Links 👇👇</h6>
-          <div>
-            🖥️ <a href="https://github.com/Afif-Ur-Rahman/BE">Backend Code</a>{" "}
-            🖥️
-          </div>{" "}
-          <div>
-            🖥️ <a href="https://github.com/Afif-Ur-Rahman/FE">Frontend Code</a>{" "}
-            🖥️
-          </div>
-        </div>
+        <CodeDownload />
       </div>
     </>
   );
