@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
   const navigate = useNavigate();
-  const BASE_URL = "http://localhost:5000";
+  const baseUrl = process.env.REACT_APP_BASE_URL;
   const [loader, setLoader] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -60,7 +60,7 @@ function Login() {
       return;
     }
 
-    const API_LINK = `${BASE_URL}/login`;
+    const API_LINK = `${baseUrl}/login`;
 
     try {
       const result = await fetch(API_LINK, {

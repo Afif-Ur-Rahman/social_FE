@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 function Signup() {
   const navigate = useNavigate();
-  const BASE_URL = "http://localhost:5000";
+  const baseUrl = process.env.REACT_APP_BASE_URL;
   const [loader, setLoader] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -62,7 +62,7 @@ function Signup() {
       return;
     }
 
-    const API_LINK = `${BASE_URL}/signup`;
+    const API_LINK = `${baseUrl}/signup`;
 
     try {
       const result = await fetch(API_LINK, {

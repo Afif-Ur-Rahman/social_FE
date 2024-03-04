@@ -11,8 +11,8 @@ import Feed from "./Feed";
 import CodeDownload from "./Code_Download";
 
 function UserData() {
-  const BASE_URL = "http://localhost:5000";
-  const db = "mongodb://localhost:27017/Social_App";
+  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const db = process.env.REACT_APP_MONGO_DB_URI;
   const [userData, setUserData] = useState({});
   const [posts, setPosts] = useState([]);
   const [alert, setAlert] = useState(null);
@@ -22,9 +22,12 @@ function UserData() {
   const [loader, setLoader] = useState(false);
   const [addPost, setAddPost] = useState(false);
   const [profile, setProfile] = useState(true);
+  const [comment, setComment] = useState({commentBy: userData.name, comment: ""})
   const [postData, setPostData] = useState({
     title: "",
     content: "",
+    likes: 0,
+    comments: [comment]
   });
   const [data, setData] = useState({
     page: 1,
@@ -45,7 +48,7 @@ function UserData() {
 
     try {
       setLoader(true);
-      const API_LINK = `${BASE_URL}/userdata?page=${page}&postCount=${data.postCount}`;
+      const API_LINK = `${baseUrl}/userdata?page=${page}&postCount=${data.postCount}`;
       const token = localStorage.getItem("token");
       const response = await fetch(API_LINK, {
         method: "GET",
@@ -87,7 +90,7 @@ function UserData() {
   const GetPosts = async () => {
     try {
       setLoader(true);
-      const API_LINK = `${BASE_URL}/userdata?page=${data.page}&postCount=${data.postCount}`;
+      const API_LINK = `${baseUrl}/userdata?page=${data.page}&postCount=${data.postCount}`;
       const token = localStorage.getItem("token");
       const response = await fetch(API_LINK, {
         method: "GET",
@@ -111,7 +114,7 @@ function UserData() {
   const GetAllPosts = async () => {
     try {
       setLoader(true);
-      const API_LINK = `${BASE_URL}/newsfeed?page=${data.page}&postCount=${data.postCount}`;
+      const API_LINK = `${baseUrl}/newsfeed?page=${data.page}&postCount=${data.postCount}`;
       const token = localStorage.getItem("token");
       const response = await fetch(API_LINK, {
         method: "GET",
@@ -142,6 +145,8 @@ function UserData() {
       title: postData.title,
       author: userData.name,
       content: postData.content,
+      likes: postData.likes,
+      comments: postData.comments,
     };
 
     setPosts((prevUsers) => [
@@ -149,7 +154,7 @@ function UserData() {
       ...prevUsers.slice(0, data.postCount - 1),
     ]);
 
-    let API_LINK = `${BASE_URL}/submit`;
+    let API_LINK = `${baseUrl}/submit`;
 
     try {
       await fetch(API_LINK, {
@@ -171,7 +176,7 @@ function UserData() {
   // Delete One Request
   const DeleteOneUser = async (id) => {
     setLoader(true);
-    const API_LINK = `${BASE_URL}/deleteOne`;
+    const API_LINK = `${baseUrl}/deleteOne`;
     try {
       await fetch(API_LINK, {
         method: "POST",
@@ -225,7 +230,7 @@ function UserData() {
     setPosts(updatedPost);
 
     // Updating Data in Database
-    const API_LINK = `${BASE_URL}/update`;
+    const API_LINK = `${baseUrl}/update`;
     try {
       await fetch(API_LINK, {
         method: "PUT",
@@ -353,7 +358,6 @@ function UserData() {
               {posts?.map((item, index) => (
                 <div className="card" key={index}>
                     <UserPost
-                      key={index}
                       item={item}
                       handleEditClick={handleEditClick}
                       setDel={setDel}
