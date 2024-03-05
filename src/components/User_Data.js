@@ -22,12 +22,15 @@ function UserData() {
   const [loader, setLoader] = useState(false);
   const [addPost, setAddPost] = useState(false);
   const [profile, setProfile] = useState(true);
-  const [comment, setComment] = useState({commentBy: userData.name, comment: ""})
+  const [comment, setComment] = useState({
+    commentBy: userData.name,
+    comment: "",
+  });
   const [postData, setPostData] = useState({
     title: "",
     content: "",
-    likes: 0,
-    comments: [comment]
+    likes: [],
+    comments: [comment],
   });
   const [data, setData] = useState({
     page: 1,
@@ -313,7 +316,7 @@ function UserData() {
                 className="btn btn-success mx-1"
                 onClick={() => {
                   setProfile(false);
-                  GetAllPosts()
+                  GetAllPosts();
                 }}
               >
                 News Feed
@@ -324,7 +327,7 @@ function UserData() {
                 className="btn btn-success mx-1"
                 onClick={() => {
                   setProfile(true);
-                  GetPosts()
+                  GetPosts();
                 }}
               >
                 Profile
@@ -357,12 +360,13 @@ function UserData() {
             <div className="allPosts col-md-4">
               {posts?.map((item, index) => (
                 <div className="card" key={index}>
-                    <UserPost
-                      item={item}
-                      handleEditClick={handleEditClick}
-                      setDel={setDel}
-                      setNewId={setNewId}
-                    />
+                  <UserPost
+                    item={item}
+                    handleEditClick={handleEditClick}
+                    setDel={setDel}
+                    setNewId={setNewId}
+                    userData={userData}
+                  />
                 </div>
               ))}
             </div>
@@ -371,9 +375,9 @@ function UserData() {
           {!profile && (
             <div className="allPosts col-md-4">
               {posts?.map((item, index) => (
-              <div className="card" key={index}>
-                <Feed item={item} />
-              </div>
+                <div className="card" key={index}>
+                  <Feed item={item} userData={userData} />
+                </div>
               ))}
             </div>
           )}
