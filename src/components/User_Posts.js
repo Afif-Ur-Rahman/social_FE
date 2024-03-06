@@ -34,7 +34,6 @@ const UserPost = ({
 
   const handleLikeClick = async () => {
     let updatedLikes = [];
-    setIsLiked(!isLiked);
 
     if (likes?.includes(userData._id)) {
       updatedLikes = likes.filter((userId) => userId !== userData._id);
@@ -97,7 +96,7 @@ const UserPost = ({
           onClick={handleLikeClick}
           style={{ cursor: "pointer" }}
         >
-          {likes.filter((userId) => userId === userData._id) ? <ThumbIcon2 /> : <ThumbIcon />} {likes.length}{" "}
+          {likes?.includes(userData._id) ? <ThumbIcon2 /> : <ThumbIcon />} {likes.length}{" "}
           {likes.length <= 1 ? "Like" : "Likes"}
         </div>
         <div className="mx-2">

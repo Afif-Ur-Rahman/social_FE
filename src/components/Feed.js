@@ -47,7 +47,7 @@ const Feed = ({ item, userData }) => {
       <p className="card-text">{item.content ? item.content : "No Content to Display"}</p>
       <div className="lico">
         <div className="mx-2" onClick={handleLikeClick} style={{cursor: "pointer"}}>
-          {likes.filter((userId) => userId === userData._id)? <ThumbIcon2 /> : <ThumbIcon />} {likes.length} {likes.length <= 1? "Like" : "Likes"}
+          {likes?.includes(userData._id)? <ThumbIcon2 /> : <ThumbIcon />} {likes.length} {likes.length <= 1? "Like" : "Likes"}
         </div>
         <div className="mx-2">
           <MsgIcon /> Comment
