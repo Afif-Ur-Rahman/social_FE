@@ -22,15 +22,11 @@ function UserData() {
   const [loader, setLoader] = useState(false);
   const [addPost, setAddPost] = useState(false);
   const [profile, setProfile] = useState(true);
-  const [comment, setComment] = useState({
-    commentBy: userData.name,
-    comment: "",
-  });
   const [postData, setPostData] = useState({
     title: "",
     content: "",
     likes: [],
-    comments: [comment],
+    comments: [],
   });
   const [data, setData] = useState({
     page: 1,
@@ -40,7 +36,7 @@ function UserData() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    GetPosts();
+    GetAllPosts();
   }, [data.postCount]);
 
   const handlePaginationClick = async (page) => {
@@ -51,7 +47,9 @@ function UserData() {
 
     try {
       setLoader(true);
-      const API_LINK = `${baseUrl}/userdata?page=${page}&postCount=${data.postCount}`;
+      const API_LINK = profile
+        ? `${baseUrl}/newsfeed?page=${page}&postCount=${data.postCount}`
+        : `${baseUrl}/userdata?page=${page}&postCount=${data.postCount}`;
       const token = localStorage.getItem("token");
       const response = await fetch(API_LINK, {
         method: "GET",
@@ -62,20 +60,12 @@ function UserData() {
         },
       });
       const result = await response.json();
-      setPosts(result.users);
+      setPosts(result.posts);
       setData({ ...data, page: page, totalPages: result.totalPages });
       setLoader(false);
     } catch (error) {
       console.error(`Error Fetching the data from ${db}: ${error}`);
     }
-  };
-
-  const handleInputChange = (e) => {
-    setPostData({ ...postData, [e.target.id]: e.target.value });
-  };
-
-  const handleAddData = () => {
-    setAddPost(true);
   };
 
   // Alert
@@ -200,20 +190,6 @@ function UserData() {
     }
   };
 
-  // Set Data to From Request
-  const handleEditClick = (id) => {
-    setAddPost(true);
-    const postToEdit = posts.find((posts) => posts._id === id);
-    setPostData({
-      title: postToEdit.title,
-      author: postToEdit.author,
-      content: postToEdit.content,
-    });
-    setNewId(id);
-    setButton(false);
-    window.scrollTo(0, 0);
-  };
-
   // Update Request
   const updatePost = async (e) => {
     e.preventDefault();
@@ -265,14 +241,12 @@ function UserData() {
         <Post
           button={button}
           postData={postData}
-          handleInputChange={handleInputChange}
           userData={userData}
+          setPostData={setPostData}
           publishPost={publishPost}
           updatePost={updatePost}
-          setPostData={setPostData}
           setButton={setButton}
           setAddPost={setAddPost}
-          loader={loader}
         />
       )}
 
@@ -284,8 +258,8 @@ function UserData() {
         </div>
 
         <div>
-          {profile && <h2 style={{ textAlign: "center" }}>User's Posts</h2>}
-          {!profile && <h2 style={{ textAlign: "center" }}>News Feed</h2>}
+          {!profile && <h2 style={{ textAlign: "center" }}>User's Posts</h2>}
+          {profile && <h2 style={{ textAlign: "center" }}>News Feed</h2>}
         </div>
 
         <div className="logout">
@@ -311,22 +285,22 @@ function UserData() {
           </div>
 
           <div className="my-1">
-            {profile && (
+            {!profile && (
               <button
                 className="btn btn-success mx-1"
                 onClick={() => {
-                  setProfile(false);
+                  setProfile(true);
                   GetAllPosts();
                 }}
               >
                 News Feed
               </button>
             )}
-            {!profile && (
+            {profile && (
               <button
                 className="btn btn-success mx-1"
                 onClick={() => {
-                  setProfile(true);
+                  setProfile(false);
                   GetPosts();
                 }}
               >
@@ -336,7 +310,7 @@ function UserData() {
             <button
               className="btn btn-success mx-1"
               onClick={() => {
-                handleAddData();
+                setAddPost(true);
               }}
             >
               Create Post
@@ -356,27 +330,33 @@ function UserData() {
         </div>
 
         <div className="container">
-          {profile && (
+          {!profile && (
             <div className="allPosts col-md-4">
               {posts?.map((item, index) => (
                 <div className="card" key={index}>
                   <UserPost
                     item={item}
-                    handleEditClick={handleEditClick}
                     setDel={setDel}
                     setNewId={setNewId}
                     userData={userData}
+                    setAddPost= {setAddPost}
+                    setPostData= {setPostData}
+                    setButton={setButton}
+                    posts={posts}
                   />
                 </div>
               ))}
             </div>
           )}
 
-          {!profile && (
+          {profile && (
             <div className="allPosts col-md-4">
               {posts?.map((item, index) => (
                 <div className="card" key={index}>
-                  <Feed item={item} userData={userData} />
+                  <Feed
+                    item={item}
+                    userData={userData}
+                  />
                 </div>
               ))}
             </div>

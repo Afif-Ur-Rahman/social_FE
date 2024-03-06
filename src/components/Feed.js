@@ -7,11 +7,9 @@ const Feed = ({ item, userData }) => {
 
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const [likes, setLikes] = useState(item.likes || []);
-  const [isLiked, setIsLiked] = useState(false)
 
   const handleLikeClick = async () => {
     let updatedLikes = [];
-    setIsLiked(!isLiked)
 
     if (likes?.includes(userData._id)) {
       updatedLikes = likes.filter((userId) => userId !== userData._id);
@@ -49,7 +47,7 @@ const Feed = ({ item, userData }) => {
       <p className="card-text">{item.content ? item.content : "No Content to Display"}</p>
       <div className="lico">
         <div className="mx-2" onClick={handleLikeClick} style={{cursor: "pointer"}}>
-          {!isLiked? <ThumbIcon2 /> : <ThumbIcon />} {likes.length} {likes.length <= 1? "Like" : "Likes"}
+          {likes.filter((userId) => userId === userData._id)? <ThumbIcon2 /> : <ThumbIcon />} {likes.length} {likes.length <= 1? "Like" : "Likes"}
         </div>
         <div className="mx-2">
           <MsgIcon /> Comment

@@ -3,15 +3,18 @@ import React from "react";
 function Post({
   button,
   postData,
-  handleInputChange,
+  setPostData,
   userData,
   publishPost,
   updatePost,
-  setPostData,
   setButton,
   setAddPost,
-  loader,
 }) {
+
+  const handleInputChange = (e) => {
+    setPostData({ ...postData, [e.target.id]: e.target.value });
+  };
+
   return (
     <div
       className="data d-flex flex-column align-items-center justify-content-center"
@@ -71,7 +74,6 @@ function Post({
 
           <div>
             <button
-              disabled={loader}
               type="submit"
               className="btn btn-success mx-1"
               onClick={button ? publishPost : updatePost}

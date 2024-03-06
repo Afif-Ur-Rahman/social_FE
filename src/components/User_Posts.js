@@ -5,13 +5,36 @@ import { ReactComponent as ThumbIcon } from "./Thumb_Icon.svg";
 import { ReactComponent as ThumbIcon2 } from "./Thumb_Icon2.svg";
 import { ReactComponent as MsgIcon } from "./Msg_Icon.svg";
 
-const UserPost = ({ item, handleEditClick, setDel, setNewId, userData }) => {
+const UserPost = ({
+  item,
+  setDel,
+  setNewId,
+  userData,
+  isLiked,
+  setIsLiked,
+  setAddPost,
+  setPostData,
+  setButton,
+  posts,
+}) => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const [likes, setLikes] = useState(item.likes || []);
-  // const [isLiked, setIsLiked] = useState(second)
+
+  const handleEditClick = (id) => {
+    setAddPost(true);
+    const postToEdit = posts.find((posts) => posts._id === id);
+    setPostData({
+      title: postToEdit.title,
+      author: postToEdit.author,
+      content: postToEdit.content,
+    });
+    setNewId(id);
+    setButton(false);
+  };
 
   const handleLikeClick = async () => {
     let updatedLikes = [];
+    setIsLiked(!isLiked);
 
     if (likes?.includes(userData._id)) {
       updatedLikes = likes.filter((userId) => userId !== userData._id);
@@ -69,8 +92,13 @@ const UserPost = ({ item, handleEditClick, setDel, setNewId, userData }) => {
         {item.content ? item.content : "No Content to Display"}
       </p>
       <div className="lico">
-        <div className="mx-2" onClick={handleLikeClick} style={{ cursor: "pointer" }}>
-          <ThumbIcon /> {likes.length} {likes.length <= 1 ? "Like" : "Likes"}
+        <div
+          className="mx-2"
+          onClick={handleLikeClick}
+          style={{ cursor: "pointer" }}
+        >
+          {likes.filter((userId) => userId === userData._id) ? <ThumbIcon2 /> : <ThumbIcon />} {likes.length}{" "}
+          {likes.length <= 1 ? "Like" : "Likes"}
         </div>
         <div className="mx-2">
           <MsgIcon /> Comment

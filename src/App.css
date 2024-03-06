@@ -43,7 +43,6 @@ body {
 
 .posts {
   display: flex;
-  align-items: center;
   max-width: 100%;
   max-height: 300px;
   flex-direction: column;
@@ -65,7 +64,6 @@ body {
 .allPosts {
   width: 100%;
   display: flex;
-  flex-wrap: wrap;
   justify-content: flex-start;
   margin: 0 auto;
   flex-direction: column;
@@ -78,7 +76,7 @@ body {
 }
 
 .card {
-  max-width: 80%;
+  width: 80%;
   margin: 0.5rem auto;
 }
 
