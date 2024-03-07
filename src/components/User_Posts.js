@@ -15,10 +15,11 @@ const UserPost = ({
   setPostData,
   setButton,
   posts,
+  setLoader,
 }) => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const [likes, setLikes] = useState(item.likes || []);
-  const [comments, setComments] = useState(item.comments);
+  const [comments, setComments] = useState(item.comments || []);
   const [addComment, setAddComment] = useState({
     username: userData.name,
     comment: "",
@@ -70,6 +71,7 @@ const UserPost = ({
   };
 
   const handleCommentClick = async () => {
+    setLoader(true);
     let updatedComments = [...comments, addComment];
 
     try {
@@ -87,12 +89,14 @@ const UserPost = ({
       }
       setComments(updatedComments);
       setAddComment({ ...addComment, comment: ""});
+      setLoader(false);
     } catch (error) {
       console.error("Failed to Comment", error);
     }
   };
 
   const handleDeleteCmnt = async(index) => {
+    setLoader(true);
     let updatedComments = comments.filter((_, i) => i !== index);
 
     try {
@@ -109,6 +113,7 @@ const UserPost = ({
         throw new Error("Failed to Delete Comment");
       }
       setComments(updatedComments);
+      setLoader(false)
     } catch (error) {
       console.error("Failed to delete comment", error);
     }
@@ -116,12 +121,9 @@ const UserPost = ({
 
   return (
     <div className="card-body posts">
-      <div className="badge bg-primary" style={{ fontSize: "14px" }}>
-        {item.author}
-      </div>
       <div className="post-head">
         <h6 className="card-title">
-          {item.title ? item.title : "This is Heading"}
+          {item.author}
         </h6>
         <div className="edde">
           <span
@@ -141,6 +143,7 @@ const UserPost = ({
           </span>
         </div>
       </div>
+      <div className="date"> Published At : {item.time} / {item.date}</div>
       <p className="card-text">
         {item.content ? item.content : "No Content to Display"}
       </p>

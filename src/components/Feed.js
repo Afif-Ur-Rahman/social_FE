@@ -5,10 +5,10 @@ import { ReactComponent as ThumbIcon2 } from "./Thumb_Icon2.svg";
 import { ReactComponent as SendIcon } from "./Send.svg";
 import { ReactComponent as DeleteIcon } from "./Delete_Icon.svg";
 
-const Feed = ({ item, userData }) => {
+const Feed = ({ item, userData, setLoader }) => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const [likes, setLikes] = useState(item.likes || []);
-  const [comments, setComments] = useState(item.comments);
+  const [comments, setComments] = useState(item.comments || []);
   const [addComment, setAddComment] = useState({
     userId: userData._id,
     username: userData.name,
@@ -49,6 +49,7 @@ const Feed = ({ item, userData }) => {
   };
 
   const handleCommentClick = async () => {
+    setLoader(true);
     let updatedComments = [...comments, addComment];
 
     try {
@@ -66,12 +67,14 @@ const Feed = ({ item, userData }) => {
       }
       setComments(updatedComments);
       setAddComment({ ...addComment, comment: "" });
+      setLoader(false);
     } catch (error) {
       console.error("Failed to Comment", error);
     }
   };
 
-  const handleDeleteCmnt = async(index) => {
+  const handleDeleteCmnt = async (index) => {
+    setLoader(true);
     let updatedComments = comments.filter((_, i) => i !== index);
 
     try {
@@ -88,6 +91,7 @@ const Feed = ({ item, userData }) => {
         throw new Error("Failed to Delete Comment");
       }
       setComments(updatedComments);
+      setLoader(false);
     } catch (error) {
       console.error("Failed to delete comment", error);
     }
@@ -95,14 +99,10 @@ const Feed = ({ item, userData }) => {
 
   return (
     <div className="card-body posts">
-      <div className="badge bg-primary" style={{ fontSize: "14px" }}>
-        {item.author}
-      </div>
       <div className="post-head">
-        <h6 className="card-title">
-          {item.title ? item.title : "This is Heading"}
-        </h6>
+        <h6 className="card-title">{item.author}</h6>
       </div>
+      <div className="date"> Published At : {item.time} / {item.date}</div>
       <p className="card-text">
         {item.content ? item.content : "No Content to Display"}
       </p>
@@ -157,8 +157,11 @@ const Feed = ({ item, userData }) => {
                     <div className="indCmnt" key={index}>
                       <div className="hede">
                         <h6 className="h6">{item.username}</h6>
-                        <DeleteIcon onClick={() => handleDeleteCmnt(index)} style={{cursor: "pointer"}} />
-                        </div>
+                        <DeleteIcon
+                          onClick={() => handleDeleteCmnt(index)}
+                          style={{ cursor: "pointer" }}
+                        />
+                      </div>
                       <p style={{ marginBottom: "0px" }}>{item.comment}</p>
                     </div>
                     <div className="lire">

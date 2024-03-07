@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import Alerts from "./Alerts";
 import "../App.css";
 import Loader from "./Loader";
-import mongoose from "mongoose";
 import { useNavigate } from "react-router-dom";
 import Post from "./Post";
 import UserPost from "./User_Posts";
@@ -15,7 +14,6 @@ function UserData() {
   const db = process.env.REACT_APP_MONGO_DB_URI;
   const [userData, setUserData] = useState({});
   const [posts, setPosts] = useState([]);
-  const [alert, setAlert] = useState(null);
   const [newId, setNewId] = useState(null);
   const [button, setButton] = useState(true);
   const [del, setDel] = useState(false);
@@ -23,7 +21,7 @@ function UserData() {
   const [addPost, setAddPost] = useState(false);
   const [profile, setProfile] = useState(true);
   const [postData, setPostData] = useState({
-    title: "",
+    author: userData.name,
     content: "",
     likes: [],
     comments: [],
@@ -66,17 +64,6 @@ function UserData() {
     } catch (error) {
       console.error(`Error Fetching the data from ${db}: ${error}`);
     }
-  };
-
-  // Alert
-  const showAlert = (message, type) => {
-    setAlert({
-      msg: message,
-      type,
-    });
-    setTimeout(() => {
-      setAlert(null);
-    }, 1500);
   };
 
   // Get Request
@@ -127,45 +114,6 @@ function UserData() {
     }
   };
 
-  // Submit Request
-  const publishPost = async (e) => {
-    setLoader(true);
-    e.preventDefault();
-
-    const payload = {
-      _id: new mongoose.Types.ObjectId(),
-      id: userData._id,
-      title: postData.title,
-      author: userData.name,
-      content: postData.content,
-      likes: postData.likes,
-      comments: postData.comments,
-    };
-
-    setPosts((prevUsers) => [
-      payload,
-      ...prevUsers.slice(0, data.postCount - 1),
-    ]);
-
-    let API_LINK = `${baseUrl}/submit`;
-
-    try {
-      await fetch(API_LINK, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      showAlert(`Saved Successfully`, "success");
-      setPostData({ title: "", content: "" });
-      setLoader(false);
-      setAddPost(false);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   // Delete One Request
   const DeleteOneUser = async (id) => {
     setLoader(true);
@@ -182,55 +130,10 @@ function UserData() {
       setPostData({ title: "", content: "" });
       setButton(true);
       setNewId(null);
-      showAlert(`Deleted Successfully`, "success");
       await GetPosts();
       setLoader(false);
     } catch (error) {
       console.error(`Error deleting the data from ${db}: ${error}`);
-    }
-  };
-
-  // Update Request
-  const updatePost = async (e) => {
-    e.preventDefault();
-    setLoader(true);
-
-    // Update Post Locally
-    const updatedPost = posts.map((post) =>
-      post._id === newId
-        ? {
-            ...post,
-            title: postData.title,
-            author: postData.author,
-            content: postData.content,
-          }
-        : post
-    );
-    setPosts(updatedPost);
-
-    // Updating Data in Database
-    const API_LINK = `${baseUrl}/update`;
-    try {
-      await fetch(API_LINK, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: newId,
-          title: postData.title,
-          author: userData.name,
-          content: postData.content,
-        }),
-      });
-      showAlert("Updated Successfully", "success");
-      setPostData({ title: "", content: "" });
-      setNewId(null);
-      setButton(true);
-      setLoader(false);
-      setAddPost(false);
-    } catch (error) {
-      console.error(`Error updating the data from ${db}: ${error}`);
     }
   };
 
@@ -243,10 +146,14 @@ function UserData() {
           postData={postData}
           userData={userData}
           setPostData={setPostData}
-          publishPost={publishPost}
-          updatePost={updatePost}
           setButton={setButton}
           setAddPost={setAddPost}
+          setLoader={setLoader}
+          posts={posts}
+          newId={newId}
+          setPosts={setPosts}
+          setNewId={setNewId}
+          data={data}
         />
       )}
 
@@ -339,10 +246,11 @@ function UserData() {
                     setDel={setDel}
                     setNewId={setNewId}
                     userData={userData}
-                    setAddPost= {setAddPost}
-                    setPostData= {setPostData}
+                    setAddPost={setAddPost}
+                    setPostData={setPostData}
                     setButton={setButton}
                     posts={posts}
+                    setLoader={setLoader}
                   />
                 </div>
               ))}
@@ -353,10 +261,7 @@ function UserData() {
             <div className="allPosts col-md-4">
               {posts?.map((item, index) => (
                 <div className="card" key={index}>
-                  <Feed
-                    item={item}
-                    userData={userData}
-                  />
+                  <Feed item={item} userData={userData} setLoader={setLoader} />
                 </div>
               ))}
             </div>
