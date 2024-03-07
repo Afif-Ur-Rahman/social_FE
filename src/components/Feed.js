@@ -3,12 +3,14 @@ import { ReactComponent as ThumbIcon } from "./Thumb_Icon.svg";
 import { ReactComponent as MsgIcon } from "./Msg_Icon.svg";
 import { ReactComponent as ThumbIcon2 } from "./Thumb_Icon2.svg";
 import { ReactComponent as SendIcon } from "./Send.svg";
+import { ReactComponent as DeleteIcon } from "./Delete_Icon.svg";
 
 const Feed = ({ item, userData }) => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const [likes, setLikes] = useState(item.likes || []);
   const [comments, setComments] = useState(item.comments);
   const [addComment, setAddComment] = useState({
+    userId: userData._id,
     username: userData.name,
     comment: "",
   });
@@ -48,7 +50,6 @@ const Feed = ({ item, userData }) => {
 
   const handleCommentClick = async () => {
     let updatedComments = [...comments, addComment];
-    console.log(addComment);
 
     try {
       const token = localStorage.getItem("token");
@@ -67,6 +68,28 @@ const Feed = ({ item, userData }) => {
       setAddComment({ ...addComment, comment: "" });
     } catch (error) {
       console.error("Failed to Comment", error);
+    }
+  };
+
+  const handleDeleteCmnt = async(index) => {
+    let updatedComments = comments.filter((_, i) => i !== index);
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${baseUrl}/deletecomment/${item._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify(updatedComments),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to Delete Comment");
+      }
+      setComments(updatedComments);
+    } catch (error) {
+      console.error("Failed to delete comment", error);
     }
   };
 
@@ -97,7 +120,8 @@ const Feed = ({ item, userData }) => {
           onClick={() => setShowCmnt(!showCmnt)}
           style={{ cursor: "pointer" }}
         >
-          <MsgIcon /> {comments.length} {comments.length <= 1? "Comment" : "Comments"}
+          <MsgIcon /> {comments.length}{" "}
+          {comments.length <= 1 ? "Comment" : "Comments"}
         </div>
       </div>
       {showCmnt && (
@@ -125,16 +149,27 @@ const Feed = ({ item, userData }) => {
               <SendIcon />
             </div>
           </form>
-          <div className="cmntSection">
-            {comments.map((item, index) => {
-              return (
-                <div className="indCmnt" key={index}>
-                  <h6>{item.username}</h6>
-                  <p style={{marginBottom: "0px"}}>{item.comment}</p>
-                </div>
-              );
-            })}
-          </div>
+          {comments.length !== 0 && (
+            <div className="cmntSection">
+              {comments.map((item, index) => {
+                return (
+                  <>
+                    <div className="indCmnt" key={index}>
+                      <div className="hede">
+                        <h6 className="h6">{item.username}</h6>
+                        <DeleteIcon onClick={() => handleDeleteCmnt(index)} style={{cursor: "pointer"}} />
+                        </div>
+                      <p style={{ marginBottom: "0px" }}>{item.comment}</p>
+                    </div>
+                    <div className="lire">
+                      <span className="mx-2">Like</span>
+                      <span className="mx-2">Reply</span>
+                    </div>
+                  </>
+                );
+              })}
+            </div>
+          )}
         </>
       )}
     </div>

@@ -92,6 +92,28 @@ const UserPost = ({
     }
   };
 
+  const handleDeleteCmnt = async(index) => {
+    let updatedComments = comments.filter((_, i) => i !== index);
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${baseUrl}/deletecomment/${item._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify(updatedComments),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to Delete Comment");
+      }
+      setComments(updatedComments);
+    } catch (error) {
+      console.error("Failed to delete comment", error);
+    }
+  };
+
   return (
     <div className="card-body posts">
       <div className="badge bg-primary" style={{ fontSize: "14px" }}>
@@ -136,10 +158,12 @@ const UserPost = ({
           onClick={() => setShowCmnt(!showCmnt)}
           style={{ cursor: "pointer" }}
         >
-          <MsgIcon /> Comment
+          <MsgIcon /> {comments.length}{" "}
+          {comments.length <= 1 ? "Comment" : "Comments"}
         </div>
       </div>
       {showCmnt && (
+        <>
         <form
           className="container cmnt"
           method="POST"
@@ -154,7 +178,7 @@ const UserPost = ({
             id="title"
             aria-describedby="title"
             autoComplete="off"
-            value={comments.comment}
+            value={addComment.comment}
             onChange={handleInputChange}
             placeholder="Write a comment..."
             style={{ margin: "5px 0 0 -7px" }}
@@ -163,6 +187,28 @@ const UserPost = ({
             <SendIcon />
           </div>
         </form>
+        {comments.length !== 0 && (
+          <div className="cmntSection">
+            {comments.map((item, index) => {
+              return (
+                <>
+                  <div className="indCmnt" key={index}>
+                    <div className="hede">
+                      <h6 className="h6">{item.username}</h6>
+                      <DeleteIcon onClick={() => handleDeleteCmnt(index)} style={{cursor: "pointer"}} />
+                      </div>
+                    <p style={{ marginBottom: "0px" }}>{item.comment}</p>
+                  </div>
+                  <div className="lire">
+                    <span className="mx-2">Like</span>
+                    <span className="mx-2">Reply</span>
+                  </div>
+                </>
+              );
+            })}
+          </div>
+        )}
+        </>
       )}
     </div>
   );

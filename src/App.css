@@ -48,7 +48,6 @@ body {
 
 .sendIcon {
   border: 1px solid #c3bbbb;
-  width: 7%;
   text-align: center;
   padding: 4px;
   height: 37px;
@@ -72,10 +71,31 @@ body {
 }
 
 .indCmnt {
+  width: fit-content;
   margin: 10px;
   padding: 10px;
   background-color: #e3dfdf;
   border-radius: 15px;
+  font-size: 14px;
+}
+
+.lire {
+  margin: -10px 0 0 12px;
+  font-size: 14px;
+}
+
+.hede {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hede svg {
+  height: 12px;
+  margin-top: -10px;
+}
+
+.h6 {
   font-size: 14px;
 }
 
@@ -121,8 +141,8 @@ body {
   overflow: hidden;
   height: 200px;
   border-top: 1px dashed gray;
+  border-bottom: 1px dashed gray;
   text-align: justify;
-  text-justify: inter-word;
 }
 
 .card-text:hover {
