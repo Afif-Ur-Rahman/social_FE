@@ -73,25 +73,26 @@ function Post({
       id: userData._id,
       author: userData.name,
       content: postData.content,
-      likes: postData.likes,
-      comments: postData.comments,
+      likes: [],
+      comments: [],
     };
-
-    setPosts((prevUsers) => [
-      payload,
-      ...prevUsers.slice(0, data.postCount - 1),
-    ]);
 
     let API_LINK = `${baseUrl}/submit`;
 
     try {
-      await fetch(API_LINK, {
+      const response = await fetch(API_LINK, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
+      if (response.ok) {
+        setPosts((prevUsers) => [
+          payload,
+          ...prevUsers.slice(0, data.postCount - 1),
+        ]);
+      }
       setPostData({ ...postData, content: "" });
       setLoader(false);
       setAddPost(false);

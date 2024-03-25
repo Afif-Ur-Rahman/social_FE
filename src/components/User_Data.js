@@ -13,6 +13,7 @@ function UserData() {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const db = process.env.REACT_APP_MONGO_DB_URI;
   const [userData, setUserData] = useState({});
+  const [likesComment, setLikesComment] = useState([]);
   const [posts, setPosts] = useState([]);
   const [newId, setNewId] = useState(null);
   const [button, setButton] = useState(true);
@@ -106,6 +107,7 @@ function UserData() {
       const result = await response.json();
       setPosts(result.posts);
       setUserData(result.user);
+      setLikesComment(result.likeComment);
       setData({ ...data, totalPages: result.totalPages });
     } catch (error) {
       console.error(`Error Fetching the data from ${db}: ${error}`);
@@ -177,8 +179,7 @@ function UserData() {
               alignItems: "center",
               justifyContent: "center",
             }}
-          >
-          </div>
+          ></div>
 
           <div className="my-1">
             {!profile && (
@@ -240,6 +241,7 @@ function UserData() {
                     setButton={setButton}
                     posts={posts}
                     setLoader={setLoader}
+                    likeComment={likesComment}
                   />
                 </div>
               ))}
@@ -250,7 +252,12 @@ function UserData() {
             <div className="allPosts col-md-4">
               {posts?.map((item, index) => (
                 <div className="card" key={index}>
-                  <Feed item={item} userData={userData} setLoader={setLoader} />
+                  <Feed
+                    item={item}
+                    userData={userData}
+                    setLoader={setLoader}
+                    likeComment={likesComment}
+                  />
                 </div>
               ))}
             </div>

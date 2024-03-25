@@ -3,13 +3,18 @@ import { ReactComponent as ThumbIcon } from "./Thumb_Icon.svg";
 import { ReactComponent as MsgIcon } from "./Msg_Icon.svg";
 import { ReactComponent as ThumbIcon2 } from "./Thumb_Icon2.svg";
 import { ReactComponent as SendIcon } from "./Send.svg";
-import { ReactComponent as DeleteIcon } from "./Delete_Icon.svg";
 import mongoose from "mongoose";
+import LikeComment from "./LikeComment";
 
-const Feed = ({ item, userData, setLoader }) => {
+const Feed = ({ item, userData, setLoader, likeComment }) => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
-  const [likes, setLikes] = useState(item.likes || []);
-  const [comments, setComments] = useState(item.comments || []);
+  // const [likes, setLikes] = useState(likeComment?.some((like) => (like._id === item._id) && like.likes));
+  const [likes, setLikes] = useState(() => {
+    const initialLikes = likeComment.find((like) => like._id === item._id);
+    return initialLikes ? initialLikes.likes : [];
+  });
+  console.log(likes);
+  const [comments, setComments] = useState(likeComment.comments || []);
   const [addComment, setAddComment] = useState("");
   const [showCmnt, setShowCmnt] = useState(false);
 
@@ -20,10 +25,13 @@ const Feed = ({ item, userData, setLoader }) => {
   const handleLikeClick = async () => {
     let updatedLikes = [];
 
-    if (likes?.includes(userData._id)) {
-      updatedLikes = likes.filter((userId) => userId !== userData._id);
+    if (likes?.some((like) => like.userId === userData._id)) {
+      updatedLikes = likes.filter((like) => like.userId !== userData._id);
     } else {
-      updatedLikes = [...likes, userData._id];
+      updatedLikes = [
+        ...likes,
+        { userId: userData._id, username: userData.name },
+      ];
     }
 
     try {
@@ -80,7 +88,9 @@ const Feed = ({ item, userData, setLoader }) => {
 
   const handleDeleteCmnt = async (id) => {
     setLoader(true);
-    let updatedComments = await comments.filter((comment) => comment._id !== id);
+    let updatedComments = await comments.filter(
+      (comment) => comment._id !== id
+    );
     console.log(updatedComments);
     console.log(id);
 
@@ -122,7 +132,11 @@ const Feed = ({ item, userData, setLoader }) => {
           onClick={handleLikeClick}
           style={{ cursor: "pointer" }}
         >
-          {likes?.includes(userData._id) ? <ThumbIcon2 /> : <ThumbIcon />}{" "}
+          {likes?.some((like) => like.userId === userData._id) ? (
+            <ThumbIcon2 />
+          ) : (
+            <ThumbIcon />
+          )}{" "}
           {likes.length} {likes.length <= 1 ? "Like" : "Likes"}
         </div>
         <div
@@ -159,30 +173,11 @@ const Feed = ({ item, userData, setLoader }) => {
               <SendIcon />
             </div>
           </form>
-          {comments.length !== 0 && (
-            <div className="cmntSection">
-              {comments.map((item, index) => {
-                return (
-                  <>
-                    <div className="indCmnt" key={index}>
-                      <div className="hede">
-                        <h6 className="h6">{item.username}</h6>
-                        <DeleteIcon
-                          onClick={() => handleDeleteCmnt(item._id)}
-                          style={{ cursor: "pointer" }}
-                        />
-                      </div>
-                      <p style={{ marginBottom: "0px" }}>{item.comment}</p>
-                    </div>
-                    <div className="lire">
-                      <span className="mx-2">Like</span>
-                      <span className="mx-2">Reply</span>
-                    </div>
-                  </>
-                );
-              })}
-            </div>
-          )}
+          <LikeComment
+            comments={comments}
+            handleDeleteCmnt={handleDeleteCmnt}
+            likeComment={likeComment}
+          />
         </>
       )}
     </div>
