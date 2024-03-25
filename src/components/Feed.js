@@ -4,20 +4,17 @@ import { ReactComponent as MsgIcon } from "./Msg_Icon.svg";
 import { ReactComponent as ThumbIcon2 } from "./Thumb_Icon2.svg";
 import { ReactComponent as SendIcon } from "./Send.svg";
 import { ReactComponent as DeleteIcon } from "./Delete_Icon.svg";
+import mongoose from "mongoose";
 
 const Feed = ({ item, userData, setLoader }) => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const [likes, setLikes] = useState(item.likes || []);
   const [comments, setComments] = useState(item.comments || []);
-  const [addComment, setAddComment] = useState({
-    userId: userData._id,
-    username: userData.name,
-    comment: "",
-  });
+  const [addComment, setAddComment] = useState("");
   const [showCmnt, setShowCmnt] = useState(false);
 
   const handleInputChange = (e) => {
-    setAddComment({ ...addComment, comment: e.target.value });
+    setAddComment(e.target.value);
   };
 
   const handleLikeClick = async () => {
@@ -50,7 +47,15 @@ const Feed = ({ item, userData, setLoader }) => {
 
   const handleCommentClick = async () => {
     setLoader(true);
-    let updatedComments = [...comments, addComment];
+    let updatedComments = [
+      ...comments,
+      {
+        _id: new mongoose.Types.ObjectId(),
+        userId: userData._id,
+        username: userData.name,
+        comment: addComment,
+      },
+    ];
 
     try {
       const token = localStorage.getItem("token");
@@ -66,16 +71,18 @@ const Feed = ({ item, userData, setLoader }) => {
         throw new Error("Failed to Comment");
       }
       setComments(updatedComments);
-      setAddComment({ ...addComment, comment: "" });
+      setAddComment("");
       setLoader(false);
     } catch (error) {
       console.error("Failed to Comment", error);
     }
   };
 
-  const handleDeleteCmnt = async (index) => {
+  const handleDeleteCmnt = async (id) => {
     setLoader(true);
-    let updatedComments = comments.filter((_, i) => i !== index);
+    let updatedComments = await comments.filter((comment) => comment._id !== id);
+    console.log(updatedComments);
+    console.log(id);
 
     try {
       const token = localStorage.getItem("token");
@@ -102,7 +109,10 @@ const Feed = ({ item, userData, setLoader }) => {
       <div className="post-head">
         <h6 className="card-title">{item.author}</h6>
       </div>
-      <div className="date"> Published At : {item.time} / {item.date}</div>
+      <div className="date">
+        {" "}
+        Published At : {item.time} / {item.date}
+      </div>
       <p className="card-text">
         {item.content ? item.content : "No Content to Display"}
       </p>
@@ -140,7 +150,7 @@ const Feed = ({ item, userData, setLoader }) => {
               id="title"
               aria-describedby="title"
               autoComplete="off"
-              value={addComment.comment}
+              value={addComment}
               onChange={handleInputChange}
               placeholder="Write a comment..."
               style={{ margin: "5px 0 0 -7px" }}
@@ -158,7 +168,7 @@ const Feed = ({ item, userData, setLoader }) => {
                       <div className="hede">
                         <h6 className="h6">{item.username}</h6>
                         <DeleteIcon
-                          onClick={() => handleDeleteCmnt(index)}
+                          onClick={() => handleDeleteCmnt(item._id)}
                           style={{ cursor: "pointer" }}
                         />
                       </div>

@@ -35,7 +35,7 @@ function UserData() {
 
   useEffect(() => {
     GetAllPosts();
-  }, [data.postCount]);
+  }, []);
 
   const handlePaginationClick = async (page) => {
     const userId = userData._id;
@@ -178,17 +178,6 @@ function UserData() {
               justifyContent: "center",
             }}
           >
-            <label htmlFor="name">Number of Posts: </label>
-            <input
-              type="number"
-              className="form-control"
-              autoComplete="off"
-              style={{ maxWidth: "20%" }}
-              value={data.postCount}
-              onChange={(e) =>
-                setData({ ...data, postCount: e.target.value, page: 1 })
-              }
-            />
           </div>
 
           <div className="my-1">
