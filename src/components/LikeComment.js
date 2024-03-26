@@ -8,8 +8,8 @@ const LikeComment = ({ comments, handleDeleteCmnt}) => {
         <div className="cmntSection">
           {comments.map((item, index) => {
             return (
-              <>
-                <div className="indCmnt" key={index}>
+              <div key={index}>
+                <div className="indCmnt">
                   <div className="hede">
                     <h6 className="h6">{item.username}</h6>
                     <DeleteIcon
@@ -23,7 +23,7 @@ const LikeComment = ({ comments, handleDeleteCmnt}) => {
                   <span className="mx-2">Like</span>
                   <span className="mx-2">Reply</span>
                 </div>
-              </>
+              </div>
             );
           })}
         </div>

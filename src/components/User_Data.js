@@ -14,7 +14,9 @@ function UserData() {
   const db = process.env.REACT_APP_MONGO_DB_URI;
   const [userData, setUserData] = useState({});
   const [likesComment, setLikesComment] = useState([]);
+  console.log("likesComment = ",likesComment);
   const [posts, setPosts] = useState([]);
+  console.log("posts = ",posts);
   const [newId, setNewId] = useState(null);
   const [button, setButton] = useState(true);
   const [del, setDel] = useState(false);
@@ -108,7 +110,6 @@ function UserData() {
       setPosts(result.posts);
       setUserData(result.user);
       setLikesComment(result.likeComment);
-      console.log(result.likeComment);
       setData({ ...data, totalPages: result.totalPages });
     } catch (error) {
       console.error(`Error Fetching the data from ${db}: ${error}`);

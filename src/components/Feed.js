@@ -9,11 +9,13 @@ import LikeComment from "./LikeComment";
 const Feed = ({ item, userData, setLoader, likeComment }) => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const [likes, setLikes] = useState(() => {
-    const initialLikes = likeComment.find((like) => like._id === item._id);
-    return initialLikes ? initialLikes.likes : [];
+    const prevLikesComment = likeComment.find((likeComment) => likeComment._id === item._id);
+    return prevLikesComment ? prevLikesComment.likes : [];
   });
-  console.log("likes = ",likes);
-  const [comments, setComments] = useState(likeComment.comments || []);
+  const [comments, setComments] = useState(() => {
+    const prevLikesComment = likeComment.find((likeComment) => likeComment._id === item._id);
+    return prevLikesComment ? prevLikesComment.comments : [];
+  });
   const [addComment, setAddComment] = useState("");
   const [showCmnt, setShowCmnt] = useState(false);
 
@@ -175,7 +177,6 @@ const Feed = ({ item, userData, setLoader, likeComment }) => {
           <LikeComment
             comments={comments}
             handleDeleteCmnt={handleDeleteCmnt}
-            likeComment={likeComment}
           />
         </>
       )}

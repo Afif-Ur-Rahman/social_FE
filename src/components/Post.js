@@ -70,8 +70,8 @@ function Post({
       id: userData._id,
       author: userData.name,
       content: postData.content,
-      likes: [],
-      comments: [],
+      likes: userData.likes,
+      comments: userData.comments,
     };
 
     let API_LINK = `${baseUrl}/submit`;
