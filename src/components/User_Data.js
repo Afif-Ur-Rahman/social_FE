@@ -108,6 +108,7 @@ function UserData() {
       setPosts(result.posts);
       setUserData(result.user);
       setLikesComment(result.likeComment);
+      console.log(result.likeComment);
       setData({ ...data, totalPages: result.totalPages });
     } catch (error) {
       console.error(`Error Fetching the data from ${db}: ${error}`);

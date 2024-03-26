@@ -8,12 +8,11 @@ import LikeComment from "./LikeComment";
 
 const Feed = ({ item, userData, setLoader, likeComment }) => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
-  // const [likes, setLikes] = useState(likeComment?.some((like) => (like._id === item._id) && like.likes));
   const [likes, setLikes] = useState(() => {
     const initialLikes = likeComment.find((like) => like._id === item._id);
     return initialLikes ? initialLikes.likes : [];
   });
-  console.log(likes);
+  console.log("likes = ",likes);
   const [comments, setComments] = useState(likeComment.comments || []);
   const [addComment, setAddComment] = useState("");
   const [showCmnt, setShowCmnt] = useState(false);

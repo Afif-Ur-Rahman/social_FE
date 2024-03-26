@@ -13,9 +13,7 @@ function Post({
   setPosts,
   userData,
   setNewId,
-  data,
 }) {
-
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const db = process.env.REACT_APP_MONGO_DB_URI;
 
@@ -27,22 +25,10 @@ function Post({
   const updatePost = async (e) => {
     e.preventDefault();
     setLoader(true);
-
-    // Update Post Locally
-    const updatedPost = posts.map((post) =>
-      post._id === newId
-        ? {
-            ...post,
-            content: postData.content,
-          }
-        : post
-    );
-    setPosts(updatedPost);
-
     // Updating Data in Database
     const API_LINK = `${baseUrl}/update`;
     try {
-      await fetch(API_LINK, {
+      const response = await fetch(API_LINK, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -53,6 +39,17 @@ function Post({
           content: postData.content,
         }),
       });
+      if (response.ok) {
+        const updatedPost = posts.map((post) =>
+          post._id === newId
+            ? {
+                ...post,
+                content: postData.content,
+              }
+            : post
+        );
+        setPosts(updatedPost);
+      }
       setPostData({ ...postData, content: "" });
       setNewId(null);
       setButton(true);
@@ -88,16 +85,15 @@ function Post({
         body: JSON.stringify(payload),
       });
       if (response.ok) {
-        setPosts((prevUsers) => [
-          payload,
-          ...prevUsers.slice(0, data.postCount - 1),
-        ]);
+        setPosts((prevUsers) => [payload, ...prevUsers]);
       }
       setPostData({ ...postData, content: "" });
       setLoader(false);
       setAddPost(false);
     } catch (error) {
       console.error(error);
+      setLoader(false);
+      setAddPost(false);
     }
   };
 
