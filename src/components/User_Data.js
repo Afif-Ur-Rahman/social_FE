@@ -14,9 +14,7 @@ function UserData() {
   const db = process.env.REACT_APP_MONGO_DB_URI;
   const [userData, setUserData] = useState({});
   const [likesComment, setLikesComment] = useState([]);
-  console.log("likesComment = ",likesComment);
   const [posts, setPosts] = useState([]);
-  console.log("posts = ",posts);
   const [newId, setNewId] = useState(null);
   const [button, setButton] = useState(true);
   const [del, setDel] = useState(false);
@@ -37,14 +35,12 @@ function UserData() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    GetAllPosts();
-  }, []);
+    GetPosts(data.page);
+  }, [data.page]);
 
-  const handlePaginationClick = async (page) => {
+  // Get Posts
+  const GetPosts = async (page) => {
     const userId = userData._id;
-    if (data.page === page) {
-      return;
-    }
 
     try {
       setLoader(true);
@@ -62,58 +58,16 @@ function UserData() {
       });
       const result = await response.json();
       setPosts(result.posts);
-      setData({ ...data, page: page, totalPages: result.totalPages });
-      setLoader(false);
-    } catch (error) {
-      console.error(`Error Fetching the data from ${db}: ${error}`);
-    }
-  };
-
-  // Get Request
-  const GetPosts = async () => {
-    try {
-      setLoader(true);
-      const API_LINK = `${baseUrl}/userdata?page=${data.page}&postCount=${data.postCount}`;
-      const token = localStorage.getItem("token");
-      const response = await fetch(API_LINK, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-      });
-      const result = await response.json();
-      setPosts(result.posts);
       setUserData(result.user);
-      setData({ ...data, totalPages: result.totalPages });
-    } catch (error) {
-      console.error(`Error Fetching the data from ${db}: ${error}`);
-    } finally {
-      setLoader(false);
-    }
-  };
-
-  // Get All Request
-  const GetAllPosts = async () => {
-    try {
-      setLoader(true);
-      const API_LINK = `${baseUrl}/newsfeed?page=${data.page}&postCount=${data.postCount}`;
-      const token = localStorage.getItem("token");
-      const response = await fetch(API_LINK, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
+      setData({
+        ...data,
+        page: result.currentPage,
+        totalPages: result.totalPages,
       });
-      const result = await response.json();
-      setPosts(result.posts);
-      setUserData(result.user);
       setLikesComment(result.likeComment);
-      setData({ ...data, totalPages: result.totalPages });
+      setLoader(false);
     } catch (error) {
       console.error(`Error Fetching the data from ${db}: ${error}`);
-    } finally {
       setLoader(false);
     }
   };
@@ -189,7 +143,7 @@ function UserData() {
                 className="btn btn-success mx-1"
                 onClick={() => {
                   setProfile(true);
-                  GetAllPosts();
+                  GetPosts();
                 }}
               >
                 News Feed
@@ -230,39 +184,26 @@ function UserData() {
 
         <div className="container">
           {!profile && (
-            <div className="allPosts col-md-4">
-              {posts?.map((item, index) => (
-                <div className="card" key={index}>
-                  <UserPost
-                    item={item}
-                    setDel={setDel}
-                    setNewId={setNewId}
-                    userData={userData}
-                    setAddPost={setAddPost}
-                    setPostData={setPostData}
-                    setButton={setButton}
-                    posts={posts}
-                    setLoader={setLoader}
-                    likeComment={likesComment}
-                  />
-                </div>
-              ))}
-            </div>
+            <UserPost
+              setDel={setDel}
+              setNewId={setNewId}
+              userData={userData}
+              setAddPost={setAddPost}
+              setPostData={setPostData}
+              setButton={setButton}
+              posts={posts}
+              setLoader={setLoader}
+              likeComment={likesComment}
+            />
           )}
 
           {profile && (
-            <div className="allPosts col-md-4">
-              {posts?.map((item, index) => (
-                <div className="card" key={index}>
-                  <Feed
-                    item={item}
-                    userData={userData}
-                    setLoader={setLoader}
-                    likeComment={likesComment}
-                  />
-                </div>
-              ))}
-            </div>
+            <Feed
+              userData={userData}
+              setLoader={setLoader}
+              likeComment={likesComment}
+              posts={posts}
+            />
           )}
 
           <div
@@ -300,7 +241,9 @@ function UserData() {
                 className={`btn ${
                   page === data.page ? "btn-primary" : "btn-light"
                 } mx-1 my-1`}
-                onClick={() => handlePaginationClick(page)}
+                onClick={() => {
+                  setData({ ...data, page: page });
+                }}
               >
                 {page}
               </button>
