@@ -1,22 +1,8 @@
-import React, {useState, useEffect} from "react";
+import React from "react";
 import FeedPosts from "./FeedPosts";
 
 const Feed = ({ posts, userData, setLoader, likeComment }) => {
-  const newLikeComment = likeComment;
-  const [likes, setLikes] = useState([]);
-  const [comments, setComments] = useState([]);
-  console.log(likes);
-  console.log(comments);
-
-  useEffect(() => {
-    // Update likes state based on newLikeComment and posts
-    const updatedLikes = posts.map(post => {
-      const like = newLikeComment.find(like => like._id === post._id);
-      return like || null;
-    });
-    setLikes(updatedLikes);
-  }, [newLikeComment, posts]);
-
+  
   return (
     <div className="allPosts col-md-4">
       {posts?.map((item, index) => (
@@ -25,10 +11,7 @@ const Feed = ({ posts, userData, setLoader, likeComment }) => {
             item={item}
             userData={userData}
             setLoader={setLoader}
-            likes={likes}
-            setLikes={setLikes}
-            comments={comments}
-            setComments={setComments}
+            likesComments={likeComment[index]}
           />
         </div>
       ))}

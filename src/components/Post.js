@@ -13,6 +13,7 @@ function Post({
   setPosts,
   userData,
   setNewId,
+  setLikesComment,
 }) {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const db = process.env.REACT_APP_MONGO_DB_URI;
@@ -25,7 +26,6 @@ function Post({
   const updatePost = async (e) => {
     e.preventDefault();
     setLoader(true);
-    // Updating Data in Database
     const API_LINK = `${baseUrl}/update`;
     try {
       const response = await fetch(API_LINK, {
@@ -70,9 +70,15 @@ function Post({
       id: userData._id,
       author: userData.name,
       content: postData.content,
-      likes: userData.likes,
-      comments: userData.comments,
+      likes: postData.likes,
+      comments: postData.comments,
     };
+
+    const likeComment = {
+      _id: payload._id,
+      likes: postData.likes,
+      comments: postData.comments,
+    }
 
     let API_LINK = `${baseUrl}/submit`;
 
@@ -86,6 +92,7 @@ function Post({
       });
       if (response.ok) {
         setPosts((prevUsers) => [payload, ...prevUsers]);
+        setLikesComment((prevlikesComment) => [likeComment, ...prevlikesComment])
       }
       setPostData({ ...postData, content: "" });
       setLoader(false);

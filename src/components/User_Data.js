@@ -112,6 +112,7 @@ function UserData() {
           setPosts={setPosts}
           setNewId={setNewId}
           data={data}
+          setLikesComment={setLikesComment}
         />
       )}
 

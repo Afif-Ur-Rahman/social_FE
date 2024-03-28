@@ -6,22 +6,15 @@ import { ReactComponent as SendIcon } from "./Send.svg";
 import mongoose from "mongoose";
 import LikeComment from "./LikeComment";
 
-const FeedPosts = ({ item, userData, setLoader, likes, setLikes, comments, setComments }) => {
-    console.log(item);
-    // console.log(likeComment);
+const FeedPosts = ({ item, userData, setLoader, likesComments }) => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
-//   const [likes, setLikes] = useState(() => {
-//     const prevLikesComment = likeComment.find((likeComment) => likeComment._id === item._id);
-//     return prevLikesComment ? prevLikesComment.likes : [];
-//   });
-//   console.log(likes);
-//   const [comments, setComments] = useState(() => {
-//     const prevLikesComment = likeComment.find((likeComment) => likeComment._id === item._id);
-//     return prevLikesComment ? prevLikesComment.comments : [];
-//   });
-//   console.log(comments);
+  const [likes, setLike] = useState(likesComments.likes || []);
+  const [comments, setComments] = useState(likesComments.comments || []);
   const [addComment, setAddComment] = useState("");
   const [showCmnt, setShowCmnt] = useState(false);
+  console.log(item);
+  console.log(likes);
+  console.log(comments);
 
   const handleInputChange = (e) => {
     setAddComment(e.target.value);
@@ -48,7 +41,7 @@ const FeedPosts = ({ item, userData, setLoader, likes, setLikes, comments, setCo
         body: JSON.stringify(updatedLikes),
       });
       if(response.ok) {
-        setLikes(updatedLikes);
+        setLike(updatedLikes);
       }
     } catch (error) {
       console.error("Failed to Like: ", error);
@@ -138,7 +131,7 @@ const FeedPosts = ({ item, userData, setLoader, likes, setLikes, comments, setCo
           ) : (
             <ThumbIcon />
           )}{" "}
-          {likes.length} {likes.length <= 1 ? "Like" : "Likes"}
+          {likes?.length} {likes?.length <= 1 ? "Like" : "Likes"}
         </div>
         <div
           className="mx-2"
