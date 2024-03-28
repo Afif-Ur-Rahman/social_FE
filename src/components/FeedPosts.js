@@ -12,9 +12,9 @@ const FeedPosts = ({ item, userData, setLoader, likesComments }) => {
   const [comments, setComments] = useState(likesComments.comments || []);
   const [addComment, setAddComment] = useState("");
   const [showCmnt, setShowCmnt] = useState(false);
-  console.log(item);
-  console.log(likes);
-  console.log(comments);
+  // console.log("Post",item);
+  // console.log("Likes",likes);
+  // console.log("Comments",comments);
 
   const handleInputChange = (e) => {
     setAddComment(e.target.value);

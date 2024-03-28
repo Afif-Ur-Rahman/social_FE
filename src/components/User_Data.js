@@ -5,7 +5,7 @@ import "../App.css";
 import Loader from "./Loader";
 import { useNavigate } from "react-router-dom";
 import Post from "./Post";
-import UserPost from "./User_Posts";
+import UserProfile from "./User_Profile";
 import Feed from "./Feed";
 import CodeDownload from "./Code_Download";
 
@@ -32,11 +32,12 @@ function UserData() {
     postCount: 6,
     totalPages: 0,
   });
+  console.log(data.page);
   const navigate = useNavigate();
 
   useEffect(() => {
     GetPosts(data.page);
-  }, [data.page]);
+  }, []);
 
   // Get Posts
   const GetPosts = async (page) => {
@@ -144,7 +145,6 @@ function UserData() {
                 className="btn btn-success mx-1"
                 onClick={() => {
                   setProfile(true);
-                  GetPosts();
                 }}
               >
                 News Feed
@@ -153,9 +153,9 @@ function UserData() {
             {profile && (
               <button
                 className="btn btn-success mx-1"
-                onClick={() => {
-                  setProfile(false);
-                  GetPosts();
+                onClick={ async() => {
+                  setProfile(!profile);
+                  setData({...data, page: 1});
                 }}
               >
                 Profile
@@ -163,8 +163,9 @@ function UserData() {
             )}
             <button
               className="btn btn-success mx-1"
-              onClick={() => {
-                setAddPost(true);
+              onClick={ async () => {
+                setAddPost(!profile);
+                setData({...data, page: 1})
               }}
             >
               Create Post
@@ -185,7 +186,7 @@ function UserData() {
 
         <div className="container">
           {!profile && (
-            <UserPost
+            <UserProfile
               setDel={setDel}
               setNewId={setNewId}
               userData={userData}
@@ -195,6 +196,8 @@ function UserData() {
               posts={posts}
               setLoader={setLoader}
               likeComment={likesComment}
+              GetPosts={GetPosts}
+              data={data}
             />
           )}
 
@@ -204,6 +207,8 @@ function UserData() {
               setLoader={setLoader}
               likeComment={likesComment}
               posts={posts}
+              GetPosts={GetPosts}
+              data={data}
             />
           )}
 

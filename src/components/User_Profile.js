@@ -1,20 +1,38 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from "react";
-import FeedPosts from "./FeedPosts";
+import UserPosts from "./UserPosts";
 
-const Feed = ({ posts, userData, setLoader, likeComment, GetPosts, data }) => {
-  
+const UserProfile = ({
+  setDel,
+  setNewId,
+  userData,
+  setAddPost,
+  setPostData,
+  setButton,
+  posts,
+  setLoader,
+  likeComment,
+  GetPosts,
+  data,
+}) => {
   useEffect(() => {
     GetPosts(data.page)
   }, [data.page])
+  
 
   return (
     <div className="allPosts col-md-4">
       {posts?.map((item, index) => (
         <div className="card" key={index}>
-          <FeedPosts
+          <UserPosts
             item={item}
+            setDel={setDel}
+            setNewId={setNewId}
             userData={userData}
+            setAddPost={setAddPost}
+            setPostData={setPostData}
+            setButton={setButton}
+            posts={posts}
             setLoader={setLoader}
             likesComments={likeComment[index]}
           />
@@ -24,4 +42,4 @@ const Feed = ({ posts, userData, setLoader, likeComment, GetPosts, data }) => {
   );
 };
 
-export default Feed;
+export default UserProfile;
