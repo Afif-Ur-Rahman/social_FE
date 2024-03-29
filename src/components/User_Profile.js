@@ -43,6 +43,7 @@ const UserProfile = ({
       setLoader(false);
     } catch (error) {
       console.error(`Error deleting the data: ${error}`);
+      setLoader(false);
     }
   };
   useEffect(() => {
@@ -51,7 +52,7 @@ const UserProfile = ({
 
   return (
     <>
-      <div className="allPosts col-md-4">
+      <div className="allPosts">
         {posts?.map((item, index) => (
           <div className="card" key={index}>
             <UserPosts

@@ -137,7 +137,7 @@ body {
 }
 
 .card {
-  width: 80%;
+  width: 100%;
   margin: 0.5rem auto;
 }
 
@@ -197,8 +197,9 @@ body {
 
 .logout {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .background:before {
@@ -238,7 +239,7 @@ body {
 }
 
 .delOne {
-  position: absolute;
+  position: fixed;
   width: 280px;
   top: 40%;
   left: 40%;
@@ -320,10 +321,6 @@ body {
     left: 32%;
   }
 
-  .logout {
-    flex-direction: column;
-  }
-
   .loader {
     position: fixed;
     top: 30%;
@@ -340,10 +337,6 @@ body {
     position: absolute;
     top: 0%;
     left: 23%;
-  }
-
-  .logout {
-    flex-direction: column;
   }
 
   .loader {
@@ -364,10 +357,6 @@ body {
     left: 17%;
   }
 
-  .logout {
-    flex-direction: column;
-  }
-
   .loader {
     position: fixed;
     top: 30%;
@@ -380,10 +369,6 @@ body {
     position: absolute;
     top: 0%;
     left: 17%;
-  }
-
-  .logout {
-    flex-direction: column;
   }
 
   .loader {
@@ -424,10 +409,6 @@ body {
     position: absolute;
     top: 0%;
     left: 12%;
-  }
-
-  .logout {
-    flex-direction: column;
   }
 
   .loader {

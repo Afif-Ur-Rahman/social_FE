@@ -101,49 +101,38 @@ function UserData() {
         </div>
 
         <div className="logout">
-          <div
-            className="form-group my-1"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+          <button
+            className="btn btn-success mx-1 my-1"
+            onClick={() => {
+              setProfile(!profile);
+              setData({ ...data, page: 1 });
             }}
-          ></div>
-
-          <div className="my-1">
-            <button
-              className="btn btn-success mx-1"
-              onClick={() => {
-                setProfile(!profile);
-                setData({ ...data, page: 1 });
-              }}
-            >
-              {profile ? "Profile" : "News Feed"}
-            </button>
-            <button
-              className="btn btn-success mx-1"
-              onClick={async () => {
-                setAddPost(!profile);
-                setData({ ...data, page: 1 });
-              }}
-            >
-              Create Post
-            </button>
-            <button
-              className="btn btn-primary mx-1"
-              onClick={() => {
-                setLoader(true);
-                localStorage.clear();
-                navigate("/");
-                setLoader(false);
-              }}
-            >
-              Logout
-            </button>
-          </div>
+          >
+            {profile ? "Profile" : "News Feed"}
+          </button>
+          <button
+            className="btn btn-success mx-1 my-1"
+            onClick={async () => {
+              setAddPost(!profile);
+              setData({ ...data, page: 1 });
+            }}
+          >
+            Create Post
+          </button>
+          <button
+            className="btn btn-primary mx-1 my-1"
+            onClick={() => {
+              setLoader(true);
+              localStorage.clear();
+              navigate("/");
+              setLoader(false);
+            }}
+          >
+            Logout
+          </button>
         </div>
 
-        <div className="container">
+        <div className="container" style={{ width: "fit-content" }}>
           {!profile && (
             <UserProfile
               newId={newId}
