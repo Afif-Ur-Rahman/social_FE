@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Alerts from "./Alerts";
 import "../App.css";
 import Loader from "./Loader";
@@ -17,7 +17,6 @@ function UserData() {
   const [posts, setPosts] = useState([]);
   const [newId, setNewId] = useState(null);
   const [button, setButton] = useState(true);
-  const [del, setDel] = useState(false);
   const [loader, setLoader] = useState(false);
   const [addPost, setAddPost] = useState(false);
   const [profile, setProfile] = useState(true);
@@ -32,12 +31,7 @@ function UserData() {
     postCount: 6,
     totalPages: 0,
   });
-  console.log(data.page);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    GetPosts(data.page);
-  }, []);
 
   // Get Posts
   const GetPosts = async (page) => {
@@ -70,29 +64,6 @@ function UserData() {
     } catch (error) {
       console.error(`Error Fetching the data from ${db}: ${error}`);
       setLoader(false);
-    }
-  };
-
-  // Delete One Request
-  const DeleteOneUser = async (id) => {
-    setLoader(true);
-    const API_LINK = `${baseUrl}/deleteOne`;
-    try {
-      await fetch(API_LINK, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id }),
-      });
-      setDel(false);
-      setPostData({ title: "", content: "" });
-      setButton(true);
-      setNewId(null);
-      await GetPosts();
-      setLoader(false);
-    } catch (error) {
-      console.error(`Error deleting the data from ${db}: ${error}`);
     }
   };
 
@@ -140,32 +111,20 @@ function UserData() {
           ></div>
 
           <div className="my-1">
-            {!profile && (
-              <button
-                className="btn btn-success mx-1"
-                onClick={() => {
-                  setProfile(true);
-                }}
-              >
-                News Feed
-              </button>
-            )}
-            {profile && (
-              <button
-                className="btn btn-success mx-1"
-                onClick={ async() => {
-                  setProfile(!profile);
-                  setData({...data, page: 1});
-                }}
-              >
-                Profile
-              </button>
-            )}
             <button
               className="btn btn-success mx-1"
-              onClick={ async () => {
+              onClick={() => {
+                setProfile(!profile);
+                setData({ ...data, page: 1 });
+              }}
+            >
+              {profile ? "Profile" : "News Feed"}
+            </button>
+            <button
+              className="btn btn-success mx-1"
+              onClick={async () => {
                 setAddPost(!profile);
-                setData({...data, page: 1})
+                setData({ ...data, page: 1 });
               }}
             >
               Create Post
@@ -187,17 +146,19 @@ function UserData() {
         <div className="container">
           {!profile && (
             <UserProfile
-              setDel={setDel}
+              newId={newId}
               setNewId={setNewId}
               userData={userData}
               setAddPost={setAddPost}
               setPostData={setPostData}
               setButton={setButton}
               posts={posts}
+              setPosts={setPosts}
               setLoader={setLoader}
               likeComment={likesComment}
               GetPosts={GetPosts}
               data={data}
+              setData={setData}
             />
           )}
 
@@ -209,53 +170,11 @@ function UserData() {
               posts={posts}
               GetPosts={GetPosts}
               data={data}
+              setData={setData}
             />
           )}
-
-          <div
-            className="delOne"
-            style={{
-              display: del ? "block" : "none",
-            }}
-          >
-            Are you sure you want to delete?
-            <div className="align-right">
-              <button
-                className="btn btn-success mt-2 mx-1"
-                onClick={() => {
-                  setDel(false);
-                  setNewId(null);
-                }}
-              >
-                No
-              </button>
-              <button
-                className="btn btn-danger mt-2 mx-1"
-                onClick={() => DeleteOneUser(newId)}
-              >
-                Yes
-              </button>
-            </div>
-          </div>
         </div>
 
-        <div className="pagination d-block" style={{ textAlign: "center" }}>
-          {Array.from({ length: data.totalPages }, (_, index) => index + 1).map(
-            (page) => (
-              <button
-                key={page}
-                className={`btn ${
-                  page === data.page ? "btn-primary" : "btn-light"
-                } mx-1 my-1`}
-                onClick={() => {
-                  setData({ ...data, page: page });
-                }}
-              >
-                {page}
-              </button>
-            )
-          )}
-        </div>
         <CodeDownload />
       </div>
     </>
