@@ -26,6 +26,8 @@ const Feed = ({
               userData={userData}
               setLoader={setLoader}
               likesComments={likeComment[index]}
+              GetPosts={GetPosts}
+              data={data}
             />
           </div>
         ))}

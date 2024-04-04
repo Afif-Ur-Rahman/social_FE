@@ -1,7 +1,7 @@
 import React from "react";
 import { ReactComponent as DeleteIcon } from "./Delete_Icon.svg";
 
-const LikeComment = ({ comments, handleDeleteCmnt}) => {
+const LikeComment = ({ comments, handleDeleteCmnt }) => {
   return (
     <>
       {comments.length !== 0 && (

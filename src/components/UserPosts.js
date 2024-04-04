@@ -25,10 +25,6 @@ const UserPosts = ({
   const [comments, setComments] = useState(likesComments.comments || []);
   const [addComment, setAddComment] = useState("");
   const [showCmnt, setShowCmnt] = useState(false);
-  // console.log("Post",item);
-  // console.log("Likes",likes);
-  console.log("Comments",comments);
-
   const handleInputChange = (e) => {
     setAddComment(e.target.value);
   };

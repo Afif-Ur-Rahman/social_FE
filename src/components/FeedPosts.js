@@ -5,31 +5,41 @@ import { ReactComponent as ThumbIcon2 } from "./Thumb_Icon2.svg";
 import { ReactComponent as SendIcon } from "./Send.svg";
 import mongoose from "mongoose";
 import LikeComment from "./LikeComment";
+import { useEffect } from "react";
 
-const FeedPosts = ({ item, userData, setLoader, likesComments }) => {
+const FeedPosts = ({
+  item,
+  userData,
+  setLoader,
+  likesComments,
+  data,
+  GetPosts,
+}) => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
-  const [likes, setLike] = useState(likesComments.likes || []);
-  const [comments, setComments] = useState(likesComments.comments || []);
+  const [likes, setLike] = useState(likesComments.likes);
+  const [comments, setComments] = useState(likesComments.comments);
   const [addComment, setAddComment] = useState("");
   const [showCmnt, setShowCmnt] = useState(false);
-  // console.log("Post",item);
-  // console.log("Likes",likes);
-  // console.log("Comments",comments);
 
   const handleInputChange = (e) => {
     setAddComment(e.target.value);
   };
 
+  useEffect(() => {
+    GetPosts(data.page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [comments]);
+
   const handleLikeClick = async () => {
     let updatedLikes = [];
     if (likes?.some((like) => like.userId === userData._id)) {
-        updatedLikes = likes.filter((like) => like.userId !== userData._id);
-      } else {
-        updatedLikes = [
-          ...likes,
-          { userId: userData._id, username: userData.name },
-        ];
-      }
+      updatedLikes = likes.filter((like) => like.userId !== userData._id);
+    } else {
+      updatedLikes = [
+        ...likes,
+        { userId: userData._id, username: userData.name },
+      ];
+    }
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${baseUrl}/like/${item._id}`, {
@@ -40,7 +50,7 @@ const FeedPosts = ({ item, userData, setLoader, likesComments }) => {
         },
         body: JSON.stringify(updatedLikes),
       });
-      if(response.ok) {
+      if (response.ok) {
         setLike(updatedLikes);
       }
     } catch (error) {
@@ -60,6 +70,12 @@ const FeedPosts = ({ item, userData, setLoader, likesComments }) => {
       },
     ];
 
+    const payload = {
+      _id: new mongoose.Types.ObjectId(),
+      userId: userData._id,
+      username: userData.name,
+      comment: addComment,
+    };
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${baseUrl}/comment/${item._id}`, {
@@ -68,7 +84,7 @@ const FeedPosts = ({ item, userData, setLoader, likesComments }) => {
           "Content-Type": "application/json",
           Authorization: token,
         },
-        body: JSON.stringify(updatedComments),
+        body: JSON.stringify(payload),
       });
       if (!response.ok) {
         throw new Error("Failed to Comment");
@@ -77,8 +93,8 @@ const FeedPosts = ({ item, userData, setLoader, likesComments }) => {
       setAddComment("");
       setLoader(false);
     } catch (error) {
-        console.error("Failed to Comment", error);
-        setLoader(false);
+      console.error("Failed to Comment", error);
+      setLoader(false);
     }
   };
 
@@ -138,8 +154,8 @@ const FeedPosts = ({ item, userData, setLoader, likesComments }) => {
           onClick={() => setShowCmnt(!showCmnt)}
           style={{ cursor: "pointer" }}
         >
-          <MsgIcon /> {comments.length}{" "}
-          {comments.length <= 1 ? "Comment" : "Comments"}
+          <MsgIcon /> {likesComments.comments.length}{" "}
+          {likesComments.comments.length <= 1 ? "Comment" : "Comments"}
         </div>
       </div>
       {showCmnt && (
@@ -168,7 +184,7 @@ const FeedPosts = ({ item, userData, setLoader, likesComments }) => {
             </div>
           </form>
           <LikeComment
-            comments={comments}
+            comments={likesComments.comments}
             handleDeleteCmnt={handleDeleteCmnt}
           />
         </>
